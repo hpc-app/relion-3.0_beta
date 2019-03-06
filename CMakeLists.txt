@@ -17,6 +17,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_definitions(-DINSTALL_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib/)
 add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR}/src/)
+add_definitions(-D__HIP_PLATFORM_HCC__)
 
 # message(STATUS "INSTALL_LIBRARY_DIR set to ${CMAKE_INSTALL_PREFIX}/lib/")
 # message(STATUS "SOURCE_DIR set to ${CMAKE_SOURCE_DIR}/src/")
@@ -68,46 +69,46 @@ else()
 endif()
 
 # ------------------OPTIONS WHICH ARE NEEDED TO SET BUILD-TYPES (COMPILATION FLAGS)--
-# ------------------------------------------------------------------------CUDA-ARCH--
-if(NOT DEFINED CUDA_ARCH)
-    message(STATUS "Setting fallback CUDA_ARCH=35")
-    set(CUDARCH "-arch=sm_35")
-else(NOT DEFINED CUDA_ARCH)
-    message(STATUS "Using provided CUDA_ARCH=${CUDA_ARCH}")
-    set(CUDARCH "-arch=sm_${CUDA_ARCH}")
-endif(NOT DEFINED CUDA_ARCH)
+# ------------------------------------------------------------------------HIP-ARCH--
+if(NOT DEFINED HIP_ARCH)
+    message(STATUS "Setting fallback HIP_ARCH=35")
+    set(HIPRCH "-arch=sm_35")
+else(NOT DEFINED HIP_ARCH)
+    message(STATUS "Using provided HIP_ARCH=${HIP_ARCH}")
+    set(HIPRCH "-arch=sm_${HIP_ARCH}")
+endif(NOT DEFINED HIP_ARCH)
     
 # -------------------------------------------------------------------FURTHER OPTIONS--
 
-# CUDA on by default, so check for CPU-accelration request and possible conflicting dual-request
+# HIP on by default, so check for CPU-accelration request and possible conflicting dual-request
 option(ALTCPU "Enable Accelerated CPU version" OFF)
 if(ALTCPU)
-	option(CUDA "Enable CUDA GPU acceleration" OFF)
-	if(ALTCPU AND CUDA)
-   		message(FATAL_ERROR "You cannot build with both CUDA=ON and ALTCPU=ON.  Please choose one and rerun CMAKE")
+	option(HIP "Enable HIP GPU acceleration" OFF)
+	if(ALTCPU AND HIP)
+   		message(FATAL_ERROR "You cannot build with both HIP=ON and ALTCPU=ON.  Please choose one and rerun CMAKE")
 	endif()
 else()
-	option(CUDA "Enable CUDA GPU acceleration" ON)
+	option(HIP "Enable HIP GPU acceleration" ON)
 endif()
 
 option(DoublePrec_CPU "DoublePrec_CPU" ON)
 option(DoublePrec_ACC "Accelerated Code use double-precision" OFF)
 option(MKLFFT "Use MKL rather than FFTW for FFT" OFF)
-option(CudaTexture "CudaTexture" ON)
+option(HipTexture "HipTexture" ON)
 
 if(ALTCPU)
     message(STATUS "ALTCPU enabled - Building CPU-accelerated version of RELION")
 endif()
 
-if(CUDA)
-    message(STATUS "CUDA enabled - Building CUDA-accelerated version of RELION")
+if(HIP)
+    message(STATUS "HIP enabled - Building HIP-accelerated version of RELION")
 endif()
 
-if(CUDA OR ALTCPU)
-    add_definitions(-DACC_CUDA=2 -DACC_CPU=1)
+if(HIP OR ALTCPU)
+    add_definitions(-DACC_HIP=2 -DACC_CPU=1)
 endif()
 
-# -----------------------------------------------DOUBLE PRECISION (CUDA-CODE) OR NOT--
+# -----------------------------------------------DOUBLE PRECISION (HIP-CODE) OR NOT--
 if(DoublePrec_CPU)
     message(STATUS "Setting cpu precision to double")    
 else(DoublePrec_CPU)
@@ -118,7 +119,7 @@ endif(DoublePrec_CPU)
 if(DoublePrec_ACC)
     message(STATUS "Setting accelerated code precision to double")
     add_definitions(-DACC_DOUBLE_PRECISION)
-	set(CudaTexture FALSE)
+	set(HipTexture FALSE)
 else(DoublePrec_ACC)
     message(STATUS "Setting accelerated code precision to single")
 endif(DoublePrec_ACC)
@@ -127,33 +128,33 @@ endif(DoublePrec_ACC)
  #This *has* to be AFTER project()
 include(${CMAKE_SOURCE_DIR}/cmake/BuildTypes.cmake)
 
-if(CUDA)
-    # -----------------------------------------------------------------------------CUDA--
-    # DOC: http://www.cmake.org/cmake/help/v3.0/module/FindCUDA.html
-    FIND_PACKAGE(CUDA)
+if(HIP)
+    # -----------------------------------------------------------------------------HIP--
+    # DOC: http://www.cmake.org/cmake/help/v3.0/module/FindHip.html
+    FIND_PACKAGE(HIP)
 endif()
 
-if(CUDA_FOUND)
-    message(STATUS "Using cuda wrapper to compile....")
-    if( (NOT ${CUDA_VERSION} VERSION_LESS "7.5") AND (NOT DoublePrec_ACC) )
-        message(STATUS "Cuda version is >= 7.5 and single-precision build, enable double usage warning.")
-		set(WARN_DBL "--ptxas-options=-warn-double-usage") # cuda>=7.5
-	elseif( ${CUDA_VERSION} VERSION_LESS "7.0")
-		message(WARNING "Cuda version is less than 7.0, so relion will be compiled without GPU support.")
-		set(CUDA OFF)
+if(HIP_FOUND)
+    message(STATUS "Using hip wrapper to compile....")
+    if( (NOT ${ROCM_VERSION} VERSION_LESS "1.2") AND (NOT DoublePrec_ACC) )
+        message(STATUS "Hip version is >= 1.2 and single-precision build, enable double usage warning.")
+   		set(WARN_DBL "--ptxas-options=-warn-double-usage") # rocm>=1.5
+   	elseif( ${ROCM_VERSION} VERSION_LESS "1.2")
+   		message(WARNING "Rocm version is less than 1.2, so relion will be compiled without GPU support.")
+   		set(HIP OFF)
     endif()
     
-    if(CUDA)
-        add_definitions(-DCUDA)
+    if(HIP)
+        add_definitions(-DHIP)
     endif()
-else(CUDA_FOUND)
-    message(STATUS "Using non-cuda compilation....")
-endif(CUDA_FOUND)
+else(HIP_FOUND)
+    message(STATUS "Using non-hip compilation....")
+endif(HIP_FOUND)
 
 # ------------------------------------------------------------------ALLOCATOR CHOICE--
 option(CachedAlloc "CachedAlloc" ON)
 if(NOT CachedAlloc)
-    add_definitions(-DCUDA_NO_CUSTOM_ALLOCATION)
+    add_definitions(-DHIP_NO_CUSTOM_ALLOCATION)
 	message(STATUS "Cached allocation is disabled.")
 endif(NOT CachedAlloc)
 option(CustomAllocMemGuards "CustomAllocMemGuards" OFF)
@@ -162,11 +163,11 @@ if(CustomAllocMemGuards)
     message(STATUS "Abort on out of bound write.")
 endif(CustomAllocMemGuards)
 # -------------------------------------------------------------FORCE USE OF STL-LIBS--
-option(CudaForceSTL "CudaForceSTL" OFF)
-if(CudaForceSTL)
-    add_definitions(-DCUDA_FORCESTL)
-    message(STATUS "Building cuda files wusing stl-libs for sort, min and max.")
-endif(CudaForceSTL)
+option(HipForceSTL "HipForceSTL" OFF)
+if(HipForceSTL)
+    add_definitions(-DHIP_FORCESTL)
+    message(STATUS "Building hip files wusing stl-libs for sort, min and max.")
+endif(HipForceSTL)
 
 # ------------------------------------------------------------------------GUI OR NOT--
 # Skip FLTK/X11-dependent binaries or not
@@ -239,7 +240,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     if(ALTCPU)
         add_definitions(-DFAST_CENTERFFT)
     endif()
-    SET(CudaTexture OFF)
+    SET(HipTexture OFF)
     SET(MPI_C_COMPILER ${CMAKE_C_COMPILER})
     SET(MPI_CXX_COMPILER ${CMAKE_CXX_COMPILER})
 else()
@@ -254,10 +255,10 @@ if(ALTCPU)
 endif()
 
 # ---------------------------------------------------------------USE TEXTURES OR NOT--
-if(NOT CudaTexture OR ALTCPU)
+if(NOT HipTexture OR ALTCPU)
     add_definitions(-DPROJECTOR_NO_TEXTURES)
     message(STATUS "Texture interpolation is omitted.")
-endif(NOT CudaTexture OR ALTCPU)
+endif(NOT HipTexture OR ALTCPU)
 
 # --------------------------------------------------------------------------X11/FLTK--
 option(FORCE_OWN_FLTK "FORCE_OWN_FLTK" OFF)
@@ -370,13 +371,13 @@ endif()
 
 
 ADD_SUBDIRECTORY(src/apps)
-
-#message(STATUS "CUDA option = ${CUDA}")
+#ADD_SUBDIRECTORY(src/acc)
+#message(STATUS "HIP option = ${HIP}")
 #message(STATUS "ALTCPU option = ${ALTCPU}")
 #message(STATUS "DoublePrec_CPU option = ${DoublePrec_CPU}")
 #message(STATUS "DoublePrec_ACC option = ${DoublePrec_ACC}")
 #message(STATUS "MKLFFT option = ${MKLFFT}")
-#message(STATUS "CudaTexture option = ${CudaTexture}")
+#message(STATUS "HipTexture option = ${HipTexture}")
 
 #get_directory_property( DirDefs COMPILE_DEFINITIONS )
 #message(STATUS "COMPILE_DEFINITIONS = ${DirDefs}" )

@@ -2,12 +2,12 @@
 #define ACC_PROJECTOR_H_
 
 #include "src/complex.h"
-//#include "src/acc/cuda/cuda_settings.h"
-//#include "src/acc/cuda/cuda_mem_utils.h"
+//#include "src/acc/hip/hip_settings.h"
+//#include "src/acc/hip/hip_mem_utils.h"
 #include "src/acc/acc_ptr.h"
-//#include <cuda_runtime.h>
-//#include "src/acc/cuda/cuda_kernels/cuda_device_utils.cuh"
-#ifndef CUDA
+//#include <hip_runtime.h>
+//#include "src/acc/hip/hip_kernels/hip_device_utils.hpp"
+#ifndef HIP
 #include <complex>
 #endif
 
@@ -25,12 +25,12 @@ class AccProjector
 #ifndef PROJECTOR_NO_TEXTURES
 
 	XFLOAT *texArrayReal2D, *texArrayImag2D;
-	cudaArray_t *texArrayReal, *texArrayImag;
-	cudaTextureObject_t *mdlReal, *mdlImag;
+	hipArray_t *texArrayReal, *texArrayImag;
+	hipTextureObject_t *mdlReal, *mdlImag;
 
 	size_t pitch2D;
 #else
-#ifdef CUDA
+#ifdef HIP
 	XFLOAT *mdlReal, *mdlImag;
 #else
 	std::complex<XFLOAT> *mdlComplex;
@@ -56,7 +56,7 @@ public:
 		mdlImag = 0;
 		pitch2D = 0;
 #else
-#ifdef CUDA
+#ifdef HIP
 		mdlReal = 0;
 		mdlImag = 0;
 #else
@@ -73,7 +73,7 @@ public:
 
 	void initMdl(XFLOAT *real, XFLOAT *imag);
 	void initMdl(Complex *data);
-#ifndef CUDA
+#ifndef HIP
 	void initMdl(std::complex<XFLOAT> *data);
 #endif
 

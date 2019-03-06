@@ -311,7 +311,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 
 		// ------------------------------------------------------------------------------------------
 
-		CTIC(cudaMLO->timer,"makeNoiseMask");
+		CTIC(hipMLO->timer,"makeNoiseMask");
         // Either mask with zeros or noise. Here, make a noise-image that will be optional in the softMask-kernel.
 		AccDataTypes::Image<XFLOAT> RandomImage(img(),ptrFactory);
 
@@ -332,7 +332,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
                         seed = baseMLO->random_seed + part_id;
                 }
 
-                LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+                LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
                 // construct the noise-image
                 AccUtilities::makeNoiseImage<MlClass>(	temp_sigmaFudgeFactor,
                 								baseMLO->mymodel.sigma2_noise[group_id],
@@ -340,9 +340,9 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 												accMLO,
 												RandomImage,
 												RandomImage.is3D());
-                LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+                LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
         }
-        CTOC(cudaMLO->timer,"makeNoiseMask");
+        CTOC(hipMLO->timer,"makeNoiseMask");
 
 		// ------------------------------------------------------------------------------------------
 
@@ -412,7 +412,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 												YY(my_old_offset),
 												ZZ(my_old_offset),
 												accMLO->dataIs3D);
-		LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+		LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
 		CTOC(accMLO->timer,"TranslateAndNormCorrect");
 
@@ -432,10 +432,10 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 													YY(my_old_offset),
 													ZZ(my_old_offset),
 													accMLO->dataIs3D);
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 			CTOC(accMLO->timer,"TranslateAndNormCorrect_recImg");
 
-			CTIC(cudaMLO->timer,"normalizeAndTransform_recImg");
+			CTIC(hipMLO->timer,"normalizeAndTransform_recImg");
 			// The image used to reconstruct is not masked, so we transform and beam-tilt it
 			AccUtilities::normalizeAndTransformImage<MlClass>(d_rec_img,		// input  acc-side  Array
 															  Fimg,			// output host-side MultidimArray
@@ -443,12 +443,12 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 															  current_size_x,
 															  current_size_y,
 															  current_size_z);
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
-			CTOC(cudaMLO->timer,"normalizeAndTransform_recImg");
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
+			CTOC(hipMLO->timer,"normalizeAndTransform_recImg");
 		}
 		else // if we don't have special images, just use the same as for alignment. But do it here, *before masking*
 		{
-			CTIC(cudaMLO->timer,"normalizeAndTransform_recImg");
+			CTIC(hipMLO->timer,"normalizeAndTransform_recImg");
 			// The image used to reconstruct is not masked, so we transform and beam-tilt it
 			AccUtilities::normalizeAndTransformImage<MlClass>(	 d_img,		// input  acc-side  Array
 																 Fimg,		// output host-side MultidimArray
@@ -456,8 +456,8 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 																 current_size_x,
 																 current_size_y,
 																 current_size_z);
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
-			CTOC(cudaMLO->timer,"normalizeAndTransform_recImg");
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
+			CTOC(hipMLO->timer,"normalizeAndTransform_recImg");
 		}
 
 		// ------------------------------------------------------------------------------------------
@@ -577,7 +577,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 						softMaskSum,
 						softMaskSum_bg);
 
-				LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+				LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 				softMaskSum.streamSync();
 
 				// Finalize the background value
@@ -600,23 +600,23 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 					cosine_width,
 					bg_val);
 
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 			CTOC(accMLO->timer,"applyMask");
 		}
 
 		// ------------------------------------------------------------------------------------------
 
-		CTIC(cudaMLO->timer,"normalizeAndTransform");
+		CTIC(hipMLO->timer,"normalizeAndTransform");
 		AccUtilities::normalizeAndTransformImage<MlClass>(	 d_img,		// input
 															 Fimg,		// output
 															 accMLO,
 															 current_size_x,
 															 current_size_y,
 															 current_size_z);
-		LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
-		CTIC(cudaMLO->timer,"normalizeAndTransform");
+		LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
+		CTIC(hipMLO->timer,"normalizeAndTransform");
 
 		// ------------------------------------------------------------------------------------------
 
@@ -653,7 +653,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 					(baseMLO->mymodel.current_size/2)+1, // note: NOT baseMLO->mymodel.ori_size/2+1
 					&(~spectrumAndXi2)[spectrumAndXi2.getSize()-1]); // last element is the hihgres_Xi2
 
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
 			spectrumAndXi2.streamSync();
 			spectrumAndXi2.cpToHost();
@@ -794,7 +794,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 
 					/********************************************************************************
 					 * Currently CPU-memory for projectors is not deallocated when doing multibody
-					 * due to the previous line. See cpu_ml_optimiser.cpp and cuda_ml_optimiser.cu
+					 * due to the previous line. See cpu_ml_optimiser.cpp and hip_ml_optimiser.cu
 					 ********************************************************************************/
 
 					// 17May2017: Body is centered at its own COM
@@ -910,14 +910,14 @@ void getAllSquaredDifferencesCoarse(
 
 	CTOC(accMLO->timer,"diff_pre_gpu");
 
-	std::vector< AccProjectorPlan > projectorPlans(0, (CudaCustomAllocator *)accMLO->getAllocator());
+	std::vector< AccProjectorPlan > projectorPlans(0, (HipCustomAllocator *)accMLO->getAllocator());
 
 	//If particle specific sampling plan required
 	if (accMLO->generateProjectionPlanOnTheFly)
 	{
 		CTIC(accMLO->timer,"generateProjectionSetupCoarse");
 
-		projectorPlans.resize(baseMLO->mymodel.nr_classes, (CudaCustomAllocator *)accMLO->getAllocator());
+		projectorPlans.resize(baseMLO->mymodel.nr_classes, (HipCustomAllocator *)accMLO->getAllocator());
 
 
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
@@ -1081,8 +1081,8 @@ void getAllSquaredDifferencesCoarse(
 		allWeights_pos = 0;
 
 		for (int exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
 		{
@@ -1135,8 +1135,8 @@ void getAllSquaredDifferencesCoarse(
 		}
 
 		for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread)); // does not appear to be NEEDED FOR NON-BLOCKING CLASS STREAMS in tests, but should be to sync against classStreams
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread)); // does not appear to be NEEDED FOR NON-BLOCKING CLASS STREAMS in tests, but should be to sync against classStreams
 
 		op.min_diff2[ipart] = AccUtilities::getMinOnDevice<XFLOAT>(allWeights);
 
@@ -1406,8 +1406,8 @@ void getAllSquaredDifferencesFine(
 		FinePassWeights[ipart].trans_idx.cpToDevice();
 
 		for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
 		{
@@ -1468,15 +1468,15 @@ void getAllSquaredDifferencesFine(
 						accMLO->dataIs3D
 						);
 
-//				DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+//				DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 				CTOC(accMLO->timer,"Diff2CALL");
 
 			} // end if class significant
 		} // end loop iclass
 
 		for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		FinePassWeights[ipart].setDataSize( newDataSize );
 
@@ -1612,17 +1612,17 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 
 			std::pair<size_t, XFLOAT> min_pair=AccUtilities::getArgMinOnDevice<XFLOAT>(PassWeights[ipart].weights);
 			PassWeights[ipart].weights.cpToHost();
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 			//Set all device-located weights to zero, and only the smallest one to 1.
-#ifdef CUDA
-			DEBUG_HANDLE_ERROR(cudaMemsetAsync(~(PassWeights[ipart].weights), 0.f, PassWeights[ipart].weights.getSize()*sizeof(XFLOAT),0));
+#ifdef HIP
+			DEBUG_HANDLE_ERROR(hipMemsetAsync(~(PassWeights[ipart].weights), 0.f, PassWeights[ipart].weights.getSize()*sizeof(XFLOAT),0));
 
 			XFLOAT unity=1;
-			DEBUG_HANDLE_ERROR(cudaMemcpyAsync( &(PassWeights[ipart].weights(min_pair.first) ), &unity, sizeof(XFLOAT), cudaMemcpyHostToDevice, 0));
+			DEBUG_HANDLE_ERROR(hipMemcpyAsync( &(PassWeights[ipart].weights(min_pair.first) ), &unity, sizeof(XFLOAT), hipMemcpyHostToDevice, 0));
 
 			PassWeights[ipart].weights.cpToHost();
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 #else
 			deviceInitValue<XFLOAT>(PassWeights[ipart].weights, (XFLOAT)0.0);
 			PassWeights[ipart].weights[min_pair.first] = (XFLOAT)1.0;
@@ -1768,7 +1768,7 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 				AccUtilities::kernel_exponentiate( ipartMweight, 50 - weights_max);
 
 				CTIC(accMLO->timer,"sort");
-				DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+				DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 				unsigned long ipart_length = (sp.iclass_max-sp.iclass_min+1) * sp.nr_dir * sp.nr_psi * sp.nr_trans;
 				size_t offset = ipart * op.Mweight.xdim + sp.nr_dir * sp.nr_psi * sp.nr_trans * sp.iclass_min;
@@ -1787,7 +1787,7 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 
 					filtered.deviceAlloc();
 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 					if (unsorted_ipart.getSize()==0)
 						ACC_PTR_DEBUG_FATAL("Unsorted array size zero.\n");  // Hopefully Impossible
 #endif
@@ -1875,10 +1875,10 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 					CUSTOM_ALLOCATOR_REGION_NAME("CASDTW_SIG");
 					Mcoarse_significant.deviceAlloc();
 
-					DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+					DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 					arrayOverThreshold<XFLOAT>(unsorted_ipart, Mcoarse_significant, significant_weight);
 					Mcoarse_significant.cpToHost();
-					DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+					DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 				}
 				else if (ipart_length == 1)
 				{
@@ -1891,8 +1891,8 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 			{
 
 				for (int exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-					DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-				DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+					DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+				DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 				XFLOAT weights_max = -std::numeric_limits<XFLOAT>::max();
 
@@ -1962,14 +1962,14 @@ void convertAllSquaredDifferencesToWeights(unsigned exp_ipass,
 				op.min_diff2[ipart] += 50 - weights_max;
 
 				for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-					DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-				DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+					DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+				DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 				PassWeights[ipart].weights.cpToHost(); // note that the host-pointer is shared: we're copying to Mweight.
 
 
 				CTIC(accMLO->timer,"sort");
-				DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+				DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 				size_t weightSize = PassWeights[ipart].weights.getSize();
 
 				AccPtr<XFLOAT> sorted =         ptrFactory.make<XFLOAT>((size_t)weightSize);
@@ -2230,7 +2230,7 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 		oo_otrans_z.cpToDevice();
 
 		myp_oo_otrans_x2y2z2.cpToDevice();
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		AccPtr<XFLOAT>                      p_weights = ptrFactory.make<XFLOAT>((size_t)sumBlockNum);
 		AccPtr<XFLOAT> p_thr_wsum_prior_offsetx_class = ptrFactory.make<XFLOAT>((size_t)sumBlockNum);
@@ -2287,7 +2287,7 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 						~FPCMasks[ipart][exp_iclass].jobOrigin,
 						~FPCMasks[ipart][exp_iclass].jobExtent,
 						accMLO->dataIs3D);
-			LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+			LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
 			partial_pos+=block_num;
 		}
@@ -2300,7 +2300,7 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 		if (accMLO->dataIs3D)
 			p_thr_wsum_prior_offsetz_class.cpToHost();
 
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 		int iorient = 0;
 		partial_pos=0;
 		for (long int iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
@@ -2603,8 +2603,8 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 		unsigned long classPos = 0;
 
 		for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
 		{
@@ -2683,9 +2683,9 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 
 		// These syncs are necessary (for multiple ranks on the same GPU), and (assumed) low-cost.
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[iclass]));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[iclass]));
 
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		classPos = 0;
 		for (unsigned long iclass = sp.iclass_min; iclass <= sp.iclass_max; iclass++)
@@ -2786,13 +2786,13 @@ void storeWeightedSums(OptimisationParamters &op, SamplingParameters &sp,
 		// NOTE: We've never seen that this sync is necessary, but it is needed in principle, and
 		// its absence in other parts of the code has caused issues. It is also very low-cost.
 		for (unsigned long exp_iclass = sp.iclass_min; exp_iclass <= sp.iclass_max; exp_iclass++)
-			DEBUG_HANDLE_ERROR(cudaStreamSynchronize(accMLO->classStreams[exp_iclass]));
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+			DEBUG_HANDLE_ERROR(hipStreamSynchronize(accMLO->classStreams[exp_iclass]));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		wdiff2s_AA.cpToHost();
 		wdiff2s_XA.cpToHost();
 		wdiff2s_sum.cpToHost();
-		DEBUG_HANDLE_ERROR(cudaStreamSynchronize(cudaStreamPerThread));
+		DEBUG_HANDLE_ERROR(hipStreamSynchronize(hipStreamPerThread));
 
 		AAXA_pos=0;
 

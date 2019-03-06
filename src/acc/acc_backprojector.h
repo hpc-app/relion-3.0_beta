@@ -1,15 +1,19 @@
 #ifndef ACC_BACKPROJECTOR_H_
 #define ACC_BACKPROJECTOR_H_
 
-#ifdef CUDA
-#  include <cuda_runtime.h>
+#ifndef HIP
+#define HIP
+#endif
+
+#ifdef HIP
+#include </opt/rocm/hip/include/hip/hip_runtime.h>
 #endif
 #include "src/complex.h"
 #include "src/acc/settings.h"
 #include "src/acc/acc_ptr.h"
 
-#ifndef CUDA
-#  include <tbb/spin_mutex.h>
+#ifndef HIP
+#include <tbb/spin_mutex.h>
 #endif
 
 class AccBackprojector
@@ -22,7 +26,7 @@ public:
 	    padding_factor;
 		size_t mdlXYZ;
 
-#ifndef CUDA
+#ifndef HIP
 	tbb::spin_mutex *mutexes;
 #endif
 
@@ -31,7 +35,7 @@ public:
 
 	XFLOAT *d_mdlReal, *d_mdlImag, *d_mdlWeight;
 
-	cudaStream_t stream;
+	hipStream_t stream;
 
 public:
 
@@ -43,7 +47,7 @@ public:
 				allocaton_size(0), voxelCount(0),
 				d_mdlReal(NULL), d_mdlImag(NULL), d_mdlWeight(NULL),
 				stream(0)
-#ifndef CUDA
+#ifndef HIP
 				, mutexes(0)
 #endif
 	{}
@@ -73,13 +77,13 @@ public:
 			int imgZ,
 			unsigned long imageCount,
 			bool data_is_3D,
-			cudaStream_t optStream);
+			hipStream_t optStream);
 
 	void getMdlData(XFLOAT *real, XFLOAT *imag, XFLOAT * weights);
 	void getMdlDataPtrs(XFLOAT *& real, XFLOAT *& imag, XFLOAT *& weights);
 
-	void setStream(cudaStream_t s) { stream = s; }
-	cudaStream_t getStream() { return stream; }
+	void setStream(hipStream_t s) { stream = s; }
+	hipStream_t getStream() { return stream; }
 
 	void clear();
 

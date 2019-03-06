@@ -25,7 +25,7 @@ void wavg_ref3D(
 		AccProjectorKernel &projector,
 		unsigned long       image_size,
 		unsigned long       orientation_num,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT * RESTRICT   _g_img_real,
 #else
 		XFLOAT * RESTRICT   g_img_real,	
@@ -44,7 +44,7 @@ void wavg_ref3D(
 		XFLOAT              significant_weight,
 		XFLOAT              part_scale)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_img_real;
 	g_img_real.initCheckedArray(_g_img_real);
 #endif
@@ -158,7 +158,7 @@ void wavg_3D(
 		AccProjectorKernel &projector,
 		unsigned long       image_size,
 		unsigned long       orientation_num,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT * RESTRICT   _g_img_real,
 #else
 		XFLOAT * RESTRICT   g_img_real,	
@@ -177,7 +177,7 @@ void wavg_3D(
 		XFLOAT              significant_weight,
 		XFLOAT              part_scale)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_img_real;
 	g_img_real.initCheckedArray(_g_img_real);
 #endif

@@ -1,18 +1,18 @@
-// A large amount of this code is direct from cuda_ml_optimizer and so could
+// A large amount of this code is direct from hip_ml_optimizer and so could
 // be shared (but possibly with difficulty since it is enough different that
 // we either need a lot of #ifdefs, or a lot of macros/some other mechanism to
 // abstract the differences).  The biggest differences are the type of memory
-// objects used (std::vector vs. CudaGlobalPtr and CudaCustomAllocator), the
+// objects used (std::vector vs. HipGlobalPtr and HipCustomAllocator), the
 // lack of transfers to/from the device, and on-device operations (which are
 // replaced by loops/function calls).
 //
-// CudaFFT has been replaced with lib FFTW, if RELION is configured with mix
+// HipFFT has been replaced with lib FFTW, if RELION is configured with mix
 // precision, both single and double precision FFTW are linked into RELION.
 // Install fftw-static.x86_64 and fftw-static.i686 to get the libraries without
 // having to pull them at build time.  Over time we hope to replace FFTW with
 // MKL.
 //
-// All Cuda kernels in gpu_utils and gpu_utils/cuda_kernels have been converted
+// All Hip kernels in gpu_utils and gpu_utils/hip_kernels have been converted
 // to C functions
 //
 // Hot spot loops in the converted C functions have been vectorized with ICC
@@ -20,11 +20,11 @@
 // to get the best performance on CPU.
 //
 // NOTE:  Since the GPU code was ported back to CPU there may be additional
-// changes made in the CUDA code which may not have made it here.
+// changes made in the HIP code which may not have made it here.
 #ifdef ALTCPU
 
 // Make sure we build for CPU
-#include "src/acc/cpu/cuda_stubs.h"
+#include "src/acc/cpu/hip_stubs.h"
 
 #include "src/ml_optimiser.h"
 

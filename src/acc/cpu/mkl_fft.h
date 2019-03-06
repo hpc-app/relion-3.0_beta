@@ -58,7 +58,7 @@ public:
 
 	     if( !( (setDirection==-1)||(setDirection==0)||(setDirection==1) ) )
 	     {
-		std::cerr << "*ERROR : Setting a cuda transformer direction to non-defined value" << std::endl;
+		std::cerr << "*ERROR : Setting a hip transformer direction to non-defined value" << std::endl;
 	          return;
 	     }
 

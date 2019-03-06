@@ -424,7 +424,7 @@ void kernel_frequencyPass( int grid_size, int block_size,
 					XFLOAT       angpix,
 					size_t       image_size)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if((size_t)grid_size*(size_t)block_size > (size_t)std::numeric_limits<int>::max())
 		CHECK_INDEX_DEBUG_FATAL("kernel_frequencyPass:  grid_size*(size_t)block_size > (size_t)std::numeric_limits<int>::max()");
 	if (image_size < 0)
@@ -496,7 +496,7 @@ void powerClass(int          gridSize,
 				int          res_limit,
 				XFLOAT      *g_highres_Xi2)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if((size_t)gridSize*(size_t)POWERCLASS_BLOCK_SIZE > (size_t)std::numeric_limits<int>::max())
 		CHECK_INDEX_DEBUG_FATAL("kernel_frequencyPass:  gridSize*(size_t)POWERCLASS_BLOCK_SIZE > (size_t)std::numeric_limits<int>::max()");
 	if (image_size < 0)

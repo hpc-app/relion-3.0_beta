@@ -1,4 +1,4 @@
-#include "src/acc/cpu/cuda_stubs.h"
+#include "src/acc/cpu/hip_stubs.h"
 
 #include "src/acc/acc_ptr.h"
 #include "src/acc/acc_projector.h"
@@ -265,7 +265,7 @@ void cpu_translate2D(T *	g_image_in,
 	int x,y,xp,yp;
 	size_t new_pixel;
 	
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("cpu_translate2D: image_size > std::numeric_limits<int>::max()");
 #endif
@@ -300,7 +300,7 @@ void cpu_translate3D(T *	g_image_in,
 	int x,y,z,xp,yp,zp,xy;
 	size_t new_voxel;
 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("cpu_translate3D: image_size > std::numeric_limits<int>::max()");
 #endif	
@@ -338,7 +338,7 @@ void centerFFT_2D(	int     batch_size,
 			int		xshift,
 			int		yshift)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("centerFFT_2D: image_size > std::numeric_limits<int>::max()");
 	if (image_size*(size_t)batch_size > (size_t)std::numeric_limits<int>::max())
@@ -411,7 +411,7 @@ void centerFFT_3D(	int     batch_size,
 			int		yshift,
 			int		zshift)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("centerFFT_3D: image_size > std::numeric_limits<int>::max()");
 	if (image_size*(size_t)batch_size > (size_t)std::numeric_limits<int>::max())
@@ -778,7 +778,7 @@ void cpu_kernel_multi( T *A,
 			T  S,
 			size_t     image_size)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size < 0)
 		ACC_PTR_DEBUG_INFO("cpu_kernel_multi:  image_size < 0");
 #endif
@@ -791,7 +791,7 @@ void cpu_kernel_multi( T *A,
 			T  S,
 			size_t     image_size)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size < 0)
 		ACC_PTR_DEBUG_INFO("cpu_kernel_multi2:  image_size < 0");
 #endif
@@ -806,7 +806,7 @@ void cpu_kernel_multi( T *A,
 			T  S,
 			size_t     image_size)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if (image_size < 0)
 		ACC_PTR_DEBUG_INFO("cpu_kernel_multi3:  image_size < 0");
 #endif
@@ -863,7 +863,7 @@ void cpu_kernel_make_eulers_2D(int grid_size, int block_size,
 		XFLOAT *eulers,
 		unsigned long orientation_num)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if ((size_t)grid_size*(size_t)block_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("cpu_kernel_make_eulers_2D: grid_size*block_size > std::numeric_limits<int>::max()");
 #endif
@@ -921,7 +921,7 @@ void cpu_kernel_make_eulers_3D(int grid_size, int block_size,
 		XFLOAT *L,
 		XFLOAT *R)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	if ((size_t)grid_size*(size_t)block_size > (size_t)std::numeric_limits<int>::max())
 		ACC_PTR_DEBUG_INFO("cpu_kernel_make_eulers_3D: grid_size*block_size > std::numeric_limits<int>::max()");
 #endif

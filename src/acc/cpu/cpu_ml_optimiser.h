@@ -1,7 +1,7 @@
 // For the Alternate CPU version, this is essentially a copy of
-// cuda_ml_optimiser.h.  What is different is that device bundles are not
+// hip_ml_optimiser.h.  What is different is that device bundles are not
 // needed, both as a separate class and referenced in MlOptimiserCpu,
-// which has a few different data members and methods from MlOptimiserCuda to
+// which has a few different data members and methods from MlOptimiserHip to
 // support the different implementation
 // Note the the CPU implementation defines the floating point precision used
 // for XFLOAT using ACC_DOUBLE_PRECISION (ACC_DOUBLE_PRECISION is also used
@@ -88,9 +88,9 @@ public:
 
     void expectationOneParticle(unsigned long my_ori_particle, int thread_id);
 	
-	CudaCustomAllocator *getAllocator()	
+	HipCustomAllocator *getAllocator()	
 	{
-		return ((CudaCustomAllocator *)0);
+		return ((HipCustomAllocator *)0);
 	};
 
 	~MlOptimiserCpu()

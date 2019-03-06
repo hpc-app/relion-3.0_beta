@@ -6,6 +6,7 @@
 #include "src/healpix_sampling.h"
 #include <iostream>
 #include <fstream>
+#include "src/acc/hip/custom_allocator.hpp"
 
 class AccProjectorPlan
 {
@@ -13,12 +14,14 @@ public:
 	AccPtr< long unsigned> iorientclasses;
 	AccPtr<XFLOAT> eulers;
 	long unsigned orientation_num;
+	 //double orientation_num;
 
 	AccProjectorPlan():
 		orientation_num(0)
     {};
 	
-	AccProjectorPlan(CudaCustomAllocator *allocator):
+	AccProjectorPlan(HipCustomAllocator *allocator):
+       // AccProjectorPlan():
 		iorientclasses(allocator),
 		eulers(allocator),
 		orientation_num(0)

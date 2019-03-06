@@ -328,7 +328,7 @@ void diff2_coarse(
 		XFLOAT *trans_x,
 		XFLOAT *trans_y,
 		XFLOAT *trans_z,
-#ifdef DEBUG_CUDA		
+#ifdef DEBUG_HIP		
 		XFLOAT *_g_real,
 #else
 		XFLOAT *g_real,	
@@ -341,7 +341,7 @@ void diff2_coarse(
 		unsigned long image_size
 		)
 { 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_real;
 	g_real.initCheckedArray(_g_real);
 #endif
@@ -477,7 +477,7 @@ template<bool REF3D>
 void diff2_fine_2D(
 		unsigned long     grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,		
@@ -497,7 +497,7 @@ void diff2_fine_2D(
 		unsigned long *d_job_num
 		)
 {   
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif
@@ -615,7 +615,7 @@ inline
 void diff2_fine_3D(
 		unsigned long  grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,
@@ -635,7 +635,7 @@ void diff2_fine_3D(
 		unsigned long *d_job_num
 		)
 { 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif
@@ -787,7 +787,7 @@ template<bool REF3D>
  void diff2_CC_coarse_2D(
 		unsigned long     grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,
@@ -803,7 +803,7 @@ template<bool REF3D>
 		XFLOAT   exp_local_sqrtXi2
 		)
 {  
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif
@@ -922,7 +922,7 @@ inline
 void diff2_CC_coarse_3D(
 		unsigned long     grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,
@@ -939,7 +939,7 @@ void diff2_CC_coarse_3D(
 		XFLOAT   exp_local_sqrtXi2
 		)
 { 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif
@@ -1083,7 +1083,7 @@ template<bool REF3D>
 void diff2_CC_fine_2D(
 		unsigned long     grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,
@@ -1103,7 +1103,7 @@ void diff2_CC_fine_2D(
 		unsigned long *d_job_num
 		)
 { 
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif
@@ -1228,7 +1228,7 @@ inline
 void diff2_CC_fine_3D(
 		unsigned long     grid_size,
 		XFLOAT *g_eulers,
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 		XFLOAT *_g_imgs_real,
 #else
 		XFLOAT *g_imgs_real,
@@ -1249,7 +1249,7 @@ void diff2_CC_fine_3D(
 		unsigned long *d_job_num
 		)
 {  
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> g_imgs_real;
 	g_imgs_real.initCheckedArray(_g_imgs_real);
 #endif

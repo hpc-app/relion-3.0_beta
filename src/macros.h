@@ -78,7 +78,7 @@
 #define MY_MPI_COMPLEX MPI_DOUBLE_COMPLEX
 #endif
 
-#if defined CUDA and DEBUG_CUDA
+#if defined HIP and DEBUG_HIP
 #define CRITICAL(string) raise(SIGSEGV);
 #else
 #define CRITICAL(string) REPORT_ERROR(string);
@@ -406,7 +406,7 @@ static void SINCOSF(float x, float *s, float *c) { *s = sinf(x); *c = cosf(x); }
 static void PRINT_VERSION_INFO()
 {
 	std::cout << "RELION version: " << RELION_VERSION << " "
-#if defined(DEBUG) || defined(DEBUG_CUDA)
+#if defined(DEBUG) || defined(DEBUG_HIP)
 	<< "(debug-build) "
 #endif
 
@@ -418,10 +418,10 @@ static void PRINT_VERSION_INFO()
 	<< "BASE=double"
 #endif
 
-#if defined(CUDA) || defined(ALTCPU)
+#if defined(HIP) || defined(ALTCPU)
 
-	#ifdef CUDA
-	<< ", CUDA-ACC="
+	#ifdef HIP
+	<< ", HIP-ACC="
 	#endif
 
 	#ifdef ALTCPU

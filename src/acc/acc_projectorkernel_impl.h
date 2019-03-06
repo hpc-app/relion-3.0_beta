@@ -3,7 +3,7 @@
 
 
 #ifndef PROJECTOR_NO_TEXTURES
-#define PROJECTOR_PTR_TYPE cudaTextureObject_t
+#define PROJECTOR_PTR_TYPE hipTextureObject_t
 #else
 #define PROJECTOR_PTR_TYPE XFLOAT *
 #endif
@@ -20,7 +20,7 @@ public:
 
 	PROJECTOR_PTR_TYPE mdlReal;
 	PROJECTOR_PTR_TYPE mdlImag;
-#ifdef CUDA
+#ifdef HIP
 	PROJECTOR_PTR_TYPE mdlComplex;
 #else
 	std::complex<XFLOAT> *mdlComplex;
@@ -32,7 +32,7 @@ public:
 			int mdlInitY, int mdlInitZ,
 			int padding_factor,
 			int maxR,
-#ifdef CUDA
+#ifdef HIP
 			PROJECTOR_PTR_TYPE mdlComplex
 #else
 			std::complex<XFLOAT> *mdlComplex
@@ -61,7 +61,7 @@ public:
 				maxR(maxR), maxR2(maxR*maxR),
 				mdlReal(mdlReal), mdlImag(mdlImag)
 			{
-#ifndef CUDA		
+#ifndef HIP		
 				std::complex<XFLOAT> *pData = mdlComplex;
 				for(size_t i=0; i<(size_t)mdlX * (size_t)mdlY * (size_t)mdlZ; i++) {
 					std::complex<XFLOAT> arrayval(*mdlReal ++, *mdlImag ++);
@@ -70,7 +70,7 @@ public:
 #endif
 			};
 
-#ifdef CUDA
+#ifdef HIP
 	__device__ __forceinline__
 #endif
 	void project3Dmodel(
@@ -110,7 +110,7 @@ public:
 				zp = -zp;
 			}
 
-#ifdef CUDA
+#ifdef HIP
 			real =   no_tex3D(mdlReal, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
 			imag = - no_tex3D(mdlImag, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
 #else
@@ -152,7 +152,7 @@ public:
 		}
 	}
 
-#ifdef CUDA
+#ifdef HIP
 	__device__ __forceinline__
 #endif
 	void project3Dmodel(
@@ -188,7 +188,7 @@ public:
 				zp = -zp;
 			}
 			
-	#ifdef CUDA
+	#ifdef HIP
 			real = no_tex3D(mdlReal, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
 			imag = no_tex3D(mdlImag, xp, yp, zp, mdlX, mdlXY, mdlInitY, mdlInitZ);
 	#else
@@ -228,7 +228,7 @@ public:
 		}
 	}
 
-#ifdef CUDA
+#ifdef HIP
 	__device__ __forceinline__
 #endif
 	void project2Dmodel(
@@ -259,7 +259,7 @@ public:
 				yp = -yp;
 			}
 			
-	#ifdef CUDA
+	#ifdef HIP
 			real = no_tex2D(mdlReal, xp, yp, mdlX, mdlInitY);
 			imag = no_tex2D(mdlImag, xp, yp, mdlX, mdlInitY);
 	#else
@@ -309,7 +309,7 @@ public:
 					*p.mdlReal,
 					*p.mdlImag
 #else
-#ifdef CUDA
+#ifdef HIP
 					p.mdlReal,
 					p.mdlImag
 #else

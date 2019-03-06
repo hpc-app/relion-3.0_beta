@@ -177,7 +177,7 @@ void complex2D(std::complex<XFLOAT> *mdlComplex, XFLOAT &real, XFLOAT &imag,
 
 static inline
 XFLOAT no_tex3D(
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 				XFLOAT* _mdl, 
 #else
 				XFLOAT* mdl, 
@@ -185,7 +185,7 @@ XFLOAT no_tex3D(
 				XFLOAT xp, XFLOAT yp, XFLOAT zp, 
 				int mdlX, int mdlXY, int mdlInitY, int mdlInitZ)
 {
-#ifdef DEBUG_CUDA
+#ifdef DEBUG_HIP
 	checkedArray<XFLOAT> mdl;
 	mdl.initCheckedArray(_mdl);
 #endif

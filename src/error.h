@@ -156,8 +156,8 @@ A GPU-function failed to execute.\n\n \
 If this occured at the start of a run, you might have GPUs which\n\
 are incompatible with either the data or your installation of relion.\n\
 If you \n\n\
-\t-> INSTALLED RELION YOURSELF: if you e.g. specified -DCUDA_ARCH=50\n\
-\t   and are trying ot run on a compute 3.5 GPU (-DCUDA_ARCH=3.5), \n\
+\t-> INSTALLED RELION YOURSELF: if you e.g. specified -DHIP_ARCH=50\n\
+\t   and are trying ot run on a compute 3.5 GPU (-DHIP_ARCH=3.5), \n\
 \t   this may happen.\n\n\
 \t-> HAVE MULTIPLE GPUS OF DIFFERNT VERSIONS: relion needs GPUS with\n\
 \t   at least compute 3.5. You may be trying to use a GPU older than\n\
@@ -165,7 +165,7 @@ If you \n\n\
 \t   with X=0. Then try X=1 in a new run, and so on. The numbering of\n\
 \t   GPUs may not be obvious from the driver or intuition. For a list\n\
 \t   of GPU compute generations, see \n\n\
-\t   en.wikipedia.org/wiki/CUDA#Version_features_and_specifications\n\n\
+\t   en.wikipedia.org/wiki/HIP#Version_features_and_specifications\n\n\
 \t-> ARE USING DOUBLE-PRECISION GPU CODE: relion was been written so\n\
 \t   as to not require this, and may thus have unforeseen requirements\n\
 \t   when run in this mode. If you think it is nonetheless necessary,\n\
@@ -180,7 +180,7 @@ If none of the above applies, please report the error to the relion\n\
 developers at    github.com/3dem/relion/issues\n\n")
 
 
-#define ERRCUDACAOOM ("\n\
+#define ERRHIPCAOOM ("\n\
 You ran out of memory on the GPU(s).\n\n\
 Each MPI-rank running on a GPU increases the use of GPU-memory. Relion\n\
 tries to distribute load over multiple GPUs to increase performance,\n\
@@ -223,10 +223,10 @@ developers at    github.com/3dem/relion/issues\n\n")
 #define ERRGTOC ("You are trying to benchmark a (GPU) section, but this section has not begun." ADVERR)
 #define ERRTPC  ("You are trying to benchmark a (GPU) section, but there is nothing to print."  ADVERR)
 
-#define ERRCUFFTDIM  ("You are changing the dimension of a CUFFT-transform (plan)" DEVERR)
-#define ERRCUFFTDIR  ("You are setting the direction of a CUFFT-transform to something other than forward/inverse" DEVERR)
-#define ERRCUFFTDIRF ("You are trying to run a forward CUFFT-transform for an inverse transform" DEVERR)
-#define ERRCUFFTDIRR ("You are trying to run an inverse CUFFT-transform for a forward transform" DEVERR)
+#define ERRHIPFFTDIM  ("You are changing the dimension of a HIPFFT-transform (plan)" DEVERR)
+#define ERRHIPFFTDIR  ("You are setting the direction of a HIPFFT-transform to something other than forward/inverse" DEVERR)
+#define ERRHIPFFTDIRF ("You are trying to run a forward HIPFFT-transform for an inverse transform" DEVERR)
+#define ERRHIPFFTDIRR ("You are trying to run an inverse HIPFFT-transform for a forward transform" DEVERR)
 #define ERRFFTMEMLIM ("\n\
 When trying to plan one or more Fourier transforms, it was found that the available\n\
 GPU memory was insufficient. Relion attempts to reduce the memory by segmenting\n\

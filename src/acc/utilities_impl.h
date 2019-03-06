@@ -4,11 +4,11 @@
 #include "src/acc/acc_ptr.h"
 #include "src/acc/data_types.h"
 #include "src/acc/acc_helper_functions.h"
-#ifdef CUDA
-#include "src/acc/cuda/cuda_kernels/helper.cuh"
-#include "src/acc/cuda/cuda_kernels/wavg.cuh"
-#include "src/acc/cuda/cuda_kernels/diff2.cuh"
-#include "src/acc/cuda/cuda_fft.h"
+#ifdef HIP
+#include "src/acc/hip/hip_kernels/helper.hpp"
+#include "src/acc/hip/hip_kernels/wavg.hpp"
+#include "src/acc/hip/hip_kernels/diff2.hpp"
+#include "src/acc/hip/hip_fft.h"
 #else
 #include "src/acc/cpu/cpu_kernels/helper.h"
 #include "src/acc/cpu/cpu_kernels/wavg.h"
@@ -236,7 +236,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     FOR_ALL_DIRECT_ELEMENTS_IN_MULTIDIMARRAY(sigmaNoiseSpectra)
             NoiseSpectra[n] = (XFLOAT)sqrt(sigmaFudgeFactor*sigmaNoiseSpectra.data[n]);
 
-#ifdef CUDA
+#ifdef HIP
     // Set up states to seeda and run randomization on the GPU
     // AccDataTypes::Image<curandState > RandomStates(RND_BLOCK_NUM*RND_BLOCK_SIZE,ptrFactory);
     AccPtr<curandState> RandomStates = RandomImage.make<curandState>(RND_BLOCK_NUM*RND_BLOCK_SIZE);
@@ -244,18 +244,18 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
 
     NoiseSpectra.cpToDevice();
     NoiseSpectra.streamSync();
-    LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+    LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Initialize randomization by particle ID, like on the CPU-side
-    cuda_kernel_initRND<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
+    hip_kernel_initRND<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
                                      seed,
                                     ~RandomStates);
-    LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+    LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Create noise image with the correct spectral profile
     if(is3D)
     {
-    	cuda_kernel_RNDnormalDitributionComplexWithPowerModulation3D<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
+    	hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
                                     ~accMLO->transformer1.fouriers,
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
@@ -264,13 +264,13 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     }
     else
     {
-    	cuda_kernel_RNDnormalDitributionComplexWithPowerModulation2D<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
+    	hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D<<<RND_BLOCK_NUM,RND_BLOCK_SIZE>>>(
     	                                    ~accMLO->transformer1.fouriers,
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
     	                                    ~NoiseSpectra);
     }
-    LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+    LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Transform to real-space, to get something which look like
     // the particle image without actual signal (a particle)
@@ -279,7 +279,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     // Copy the randomized image to A separate device-array, so that the
     // transformer can be used to set up the actual particle image
     accMLO->transformer1.reals.cpOnDevice(~RandomImage);
-    //cudaMLO->transformer1.reals.streamSync();
+    //hipMLO->transformer1.reals.streamSync();
 #else
 
     // Create noise image with the correct spectral profile
@@ -321,24 +321,24 @@ static void TranslateAndNormCorrect(MultidimArray<RFLOAT > &img_in,
 	// Apply the norm_correction term
 	if (normcorr!=1)
 	{
-#ifdef CUDA
+#ifdef HIP
 		int BSZ = ( (int) ceilf(( float)temp.getSize() /(float)BLOCK_SIZE));
-		CudaKernels::cuda_kernel_multi<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),normcorr,temp.getSize());
+		HipKernels::hip_kernel_multi<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),normcorr,temp.getSize());
 #else
 		CpuKernels::cpu_kernel_multi<XFLOAT>(temp(),normcorr, temp.getSize());
 #endif
 	}
-	//LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+	//LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
 	if(temp.getAccPtr()==img_out.getAccPtr())
 		CRITICAL(ERRUNSAFEOBJECTREUSE);
-#ifdef CUDA
+#ifdef HIP
 	int BSZ = ( (int) ceilf(( float)temp.getSize() /(float)BLOCK_SIZE));
 	if (DATA3D)
-		CudaKernels::cuda_kernel_translate3D<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,img_in.zdim,xOff,yOff,zOff);
+		HipKernels::hip_kernel_translate3D<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,img_in.zdim,xOff,yOff,zOff);
 	else
-		CudaKernels::cuda_kernel_translate2D<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,xOff,yOff);
-	//LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+		HipKernels::hip_kernel_translate2D<XFLOAT><<<BSZ,BLOCK_SIZE,0,temp.getStream()>>>(temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,xOff,yOff);
+	//LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 #else
 	if (DATA3D)
 		CpuKernels::cpu_translate3D<XFLOAT>(temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,img_in.zdim,xOff,yOff,zOff);
@@ -371,7 +371,7 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 							(XFLOAT*)~accMLO->transformer1.fouriers,
 							(XFLOAT)1/((XFLOAT)(accMLO->transformer1.reals.getSize())),
 							accMLO->transformer1.fouriers.getSize()*2);
-			//LAUNCH_PRIVATE_ERROR(cudaGetLastError(),accMLO->errorStatus);
+			//LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
 			AccPtr<ACCCOMPLEX> d_Fimg = img_in.make<ACCCOMPLEX>(xSize * ySize * zSize);
 			d_Fimg.allAlloc();
@@ -404,8 +404,8 @@ static void softMaskBackgroundValue(
 	AccPtr<XFLOAT> &g_sum_bg)
 {
 	int block_dim = 128; //TODO: set balanced (hardware-dep?)
-#ifdef CUDA
-		cuda_kernel_softMaskBackgroundValue<<<block_dim,SOFTMASK_BLOCK_SIZE,0, vol.getStream()>>>(
+#ifdef HIP
+		hip_kernel_softMaskBackgroundValue<<<block_dim,SOFTMASK_BLOCK_SIZE,0, vol.getStream()>>>(
 				~vol,
 				vol.getxyz(),
 				vol.getx(),
@@ -449,8 +449,8 @@ static void cosineFilter(
 		XFLOAT sum_bg_total)
 {
 	int block_dim = 128; //TODO: set balanced (hardware-dep?)
-#ifdef CUDA
-	cuda_kernel_cosineFilter<<<block_dim,SOFTMASK_BLOCK_SIZE,0,vol.getStream()>>>(
+#ifdef HIP
+	hip_kernel_cosineFilter<<<block_dim,SOFTMASK_BLOCK_SIZE,0,vol.getStream()>>>(
 			~vol,
 			vol.getxyz(),
 			vol.getx(),
@@ -487,7 +487,7 @@ static void cosineFilter(
 }
 
 void centerFFT_2D(int grid_size, int batch_size, int block_size,
-				cudaStream_t stream,
+				hipStream_t stream,
 				XFLOAT *img_in,
 				size_t image_size,
 				int xdim,
@@ -495,9 +495,9 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 				int xshift,
 				int yshift)
 {
-#ifdef CUDA
+#ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	cuda_kernel_centerFFT_2D<<<blocks,block_size,0,stream>>>(
+	hip_kernel_centerFFT_2D<<<blocks,block_size,0,stream>>>(
 				img_in,
 				image_size,
 				xdim,
@@ -523,9 +523,9 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 				int xshift,
 				int yshift)
 {
-#ifdef CUDA
+#ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	cuda_kernel_centerFFT_2D<<<blocks,block_size>>>(
+	hip_kernel_centerFFT_2D<<<blocks,block_size>>>(
 				img_in,
 				image_size,
 				xdim,
@@ -544,7 +544,7 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 }
 
 void centerFFT_3D(int grid_size, int batch_size, int block_size,
-				cudaStream_t stream,
+				hipStream_t stream,
 				XFLOAT *img_in,
 				size_t image_size,
 				int xdim,
@@ -554,9 +554,9 @@ void centerFFT_3D(int grid_size, int batch_size, int block_size,
 				int yshift,
 				int zshift)
 {
-#ifdef CUDA
+#ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	cuda_kernel_centerFFT_3D<<<blocks,block_size, 0, stream>>>(
+	hip_kernel_centerFFT_3D<<<blocks,block_size, 0, stream>>>(
 				img_in,
 				image_size,
 				xdim,
@@ -591,12 +591,12 @@ void kernel_exponentiate_weights_fine(	XFLOAT *g_pdf_orientation,
 										unsigned long *d_job_idx,
 										unsigned long *d_job_num,
 										long int job_num,
-										cudaStream_t stream)
+										hipStream_t stream)
 {
 	long block_num = ceil((double)job_num / (double)SUMW_BLOCK_SIZE);
 
-#ifdef CUDA
-	cuda_kernel_exponentiate_weights_fine<<<block_num,SUMW_BLOCK_SIZE,0,stream>>>(
+#ifdef HIP
+	hip_kernel_exponentiate_weights_fine<<<block_num,SUMW_BLOCK_SIZE,0,stream>>>(
 		g_pdf_orientation,
 		g_pdf_orientation_zeros,
 		g_pdf_offset,
