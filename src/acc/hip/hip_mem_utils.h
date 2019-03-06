@@ -3,7 +3,7 @@
 
 #ifdef HIP
 #include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/hiprand/hiprand.h>
+#include </opt/rocm/hiprand/include/hiprand.h>
 #include "src/acc/hip/hip_settings.h"
 #include "src/acc/hip/custom_allocator.hpp"
 #endif

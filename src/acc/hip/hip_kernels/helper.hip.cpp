@@ -3,8 +3,8 @@
 #include "src/acc/hip/hip_kernels/helper.hpp"
 #include "src/acc/hip/hip_settings.h"
 
-#include </opt/rocm/hiprand/hiprand.h>
-#include </opt/rocm/hiprand/hiprand_kernel.h>
+#include </opt/rocm/hiprand/include/hiprand.h>
+#include </opt/rocm/hiprand/include/hiprand_kernel.h>
 
 /// Needed explicit template instantiations
 template __global__ void hip_kernel_make_eulers_2D<true>(XFLOAT *,
@@ -653,7 +653,8 @@ __global__ void hip_kernel_rotateOnly(   ACCCOMPLEX *d_Faux,
 				x = projector.maxR;
 		}
 
-		XFLOAT sa, ca;
+		//XFLOAT sa, ca;
+		double sa, ca;
 		sincos((proj+startPsi)*psi, &sa, &ca);
 		ACCCOMPLEX val;
 
@@ -694,7 +695,8 @@ __global__ void hip_kernel_rotateAndCtf( ACCCOMPLEX *d_Faux,
 				x = projector.maxR;
 		}
 
-		XFLOAT sa, ca;
+		//XFLOAT sa, ca;
+		double sa, ca;
 		sincos((proj+startPsi)*psi, &sa, &ca);
 		ACCCOMPLEX val;
 

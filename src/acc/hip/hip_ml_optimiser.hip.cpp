@@ -8,8 +8,8 @@
 #include <iostream>
 #include "src/ml_optimiser.h"
 #include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/hiprand/hiprand.h>
-#include </opt/rocm/hiprand/hiprand_kernel.h>
+#include </opt/rocm/hiprand/include/hiprand.h>
+#include </opt/rocm/hiprand/include/hiprand_kernel.h>
 
 #include "src/acc/acc_ptr.h"
 #include "src/acc/acc_projector.h"
