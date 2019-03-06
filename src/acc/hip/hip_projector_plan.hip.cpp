@@ -1,6 +1,6 @@
 #include "src/acc/acc_projector_plan.h"
 #include "src/time.h"
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 
 #ifdef HIP
 //#include <hip_runtime.h>

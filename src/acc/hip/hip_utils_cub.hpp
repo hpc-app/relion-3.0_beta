@@ -1,7 +1,7 @@
 #ifndef HIP_UTILS_HIPCUB_HIPH_
 #define HIP_UTILS_HIPCUB_HIPH_
 
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #include "src/acc/hip/hip_settings.h"
 #include "src/acc/hip/hip_mem_utils.h"
 #include <stdio.h>

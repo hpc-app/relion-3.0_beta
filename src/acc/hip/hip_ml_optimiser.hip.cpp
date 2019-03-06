@@ -7,9 +7,9 @@
 #include <vector>
 #include <iostream>
 #include "src/ml_optimiser.h"
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/hiprand/include/hiprand.h>
-#include </opt/rocm/hiprand/include/hiprand_kernel.h>
+#include <hip/hip_runtime.h>
+#include <hiprand/hiprand.h>
+#include <hiprand/hiprand_kernel.h>
 
 #include "src/acc/acc_ptr.h"
 #include "src/acc/acc_projector.h"

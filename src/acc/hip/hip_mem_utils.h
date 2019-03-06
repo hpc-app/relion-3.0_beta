@@ -2,8 +2,8 @@
 #define HIP_DEVICE_MEM_UTILS_H_
 
 #ifdef HIP
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/hiprand/include/hiprand.h>
+#include <hip/hip_runtime.h>
+#include <hiprand/hiprand.h>
 #include "src/acc/hip/hip_settings.h"
 #include "src/acc/hip/custom_allocator.hpp"
 #endif

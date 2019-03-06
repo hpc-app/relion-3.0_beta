@@ -1,9 +1,9 @@
 #ifndef HIP_HELPER_KERNELS_HPP_
 #define HIP_HELPER_KERNELS_HPP_
 
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/hiprand/include/hiprand.h>
-#include </opt/rocm/hiprand/include/hiprand_kernel.h>
+#include <hip/hip_runtime.h>
+#include <hiprand/hiprand.h>
+#include <hiprand/hiprand_kernel.h>
 #include <vector>
 #include <iostream>
 #include <fstream>

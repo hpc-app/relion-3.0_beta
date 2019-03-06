@@ -1,5 +1,5 @@
 #undef ALTCPU
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #include "src/ml_optimiser.h"
 #include "src/acc/acc_ptr.h"
 #include "src/acc/acc_projector.h"

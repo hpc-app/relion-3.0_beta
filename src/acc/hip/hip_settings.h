@@ -14,7 +14,7 @@
 #include "src/error.h"
 
 
-#include </opt/rocm/hiprand/include/hiprand.h>
+#include <hiprand/hiprand.h>
 
 // Required compute capability
 #define HIP_CC_MAJOR 3

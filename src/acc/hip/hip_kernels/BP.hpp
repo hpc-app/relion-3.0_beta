@@ -1,7 +1,7 @@
 #ifndef HIP_BP_KERNELS_HPP_
 #define HIP_BP_KERNELS_HPP_
 
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #include <vector>
 #include <iostream>
 #include <fstream>

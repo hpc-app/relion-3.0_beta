@@ -4,7 +4,7 @@
 
 #ifdef HIP
 #include "src/acc/hip/hip_settings.h"
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #endif
 
 #include <signal.h>

@@ -4,7 +4,7 @@
 
 //Non-concurrent benchmarking tools (only for Linux)
 
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #include <iostream>
 #include <fstream>
 #include <vector>

@@ -6,13 +6,9 @@
 #include <ctime>
 #include <iostream>
 #include <fstream>
-//#include <hip_runtime.h>
 #include <signal.h>
+#include <hip/hip_runtime.h>
 
-//#define __HIP_PLATFORM_HCC__ 
-
-
-#include "/opt/rocm/hip/include/hip/hip_runtime.h"
 #include "src/ml_optimiser.h"
 #include "src/acc/acc_ptr.h"
 #include "src/acc/acc_projector.h"

@@ -3,8 +3,8 @@
 
 #include "src/acc/hip/hip_settings.h"
 #include "src/acc/hip/hip_mem_utils.h"
-#include </opt/rocm/hip/include/hip/hip_runtime.h>
-#include </opt/rocm/rocfft/include/hipfft.h>
+#include <hip/hip_runtime.h>
+#include <hipfft.h>
 
 #ifdef DEBUG_HIP
 #define HANDLE_HIPFFT_ERROR( err ) (HipfftHandleError( err, __FILE__, __LINE__ ))

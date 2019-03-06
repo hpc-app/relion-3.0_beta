@@ -114,6 +114,8 @@ endif(GUI)
 if (HIP_FOUND)
 
 set(CMAKE_CXX_COMPILER /opt/rocm/bin/hipcc)
+set(HIP_INCLUDE_PATH /opt/rocm/include)
+include_directories("${HIP_INCLUDE_PATH}")
 
     file(GLOB REL_HIP_SRC "${CMAKE_SOURCE_DIR}/src/acc/hip/*.hip.cpp" "${CMAKE_SOURCE_DIR}/src/acc/hip/hip_kernels/*.hip.cpp" )
     hip_add_library(relion_gpu_util ${REL_HIP_SRC})

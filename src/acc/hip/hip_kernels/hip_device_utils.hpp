@@ -4,7 +4,7 @@
 #define _HCC_
 #define __HIP_PLATFORM_HCC__
 
-#include </opt/rocm/hip/include/hip/hcc_detail/hip_runtime.h>
+#include <hip/hip_runtime.h>
 #include "src/acc/hip/hip_settings.h"
 
 #ifdef ACC_DOUBLE_PRECISION
