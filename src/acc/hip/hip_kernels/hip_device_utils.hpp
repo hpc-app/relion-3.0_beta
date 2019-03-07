@@ -1,9 +1,6 @@
 #ifndef HIP_DEVICE_UTILS_HPP_
 #define HIP_DEVICE_UTILS_HPP_
 
-#define _HCC_
-#define __HIP_PLATFORM_HCC__
-
 #include <hip/hip_runtime.h>
 #include "src/acc/hip/hip_settings.h"
 

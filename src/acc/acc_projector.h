@@ -2,11 +2,7 @@
 #define ACC_PROJECTOR_H_
 
 #include "src/complex.h"
-//#include "src/acc/hip/hip_settings.h"
-//#include "src/acc/hip/hip_mem_utils.h"
 #include "src/acc/acc_ptr.h"
-//#include <hip_runtime.h>
-//#include "src/acc/hip/hip_kernels/hip_device_utils.hpp"
 #ifndef HIP
 #include <complex>
 #endif
