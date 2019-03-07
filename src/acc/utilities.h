@@ -35,7 +35,7 @@ static void multiply(int block_size, AccDataTypes::Image<T> &ptr, T value)
 {
 #ifdef HIP
 	int BSZ = ( (int) ceilf(( float)ptr.getSize() /(float)block_size));
-	HipKernels::hip_kernel_multi<T><<<BSZ,block_size,0,ptr.getStream()>>>(
+	hipLaunchKernel(HipKernels::hip_kernel_multi<T>,BSZ,block_size,0,ptr.getStream(),
 		ptr(),
 		value,
 		ptr.getSize());
@@ -51,7 +51,7 @@ template <typename T>
 static void multiply(int MultiBsize, int block_size, hipStream_t stream, T *array, T value, size_t size)
 {
 #ifdef HIP
-	HipKernels::hip_kernel_multi<T><<<MultiBsize,block_size,0,stream>>>(
+	hipLaunchKernel(HipKernels::hip_kernel_multi<T>,MultiBsize,block_size,0,stream,
 		array,
 		value,
 		size);
@@ -78,7 +78,7 @@ int BSZ = ( (int) ceilf(( float)in.getxyz() /(float)block_size));
 
 if (in.is3D())
 {
-	HipKernels::hip_kernel_translate3D<T><<<BSZ,block_size,0,in.getStream()>>>(
+	hipLaunchKernel(HipKernels::hip_kernel_translate3D<T>,BSZ,block_size,0,in.getStream(),
 		in(),
 		out(),
 		in.getxyz(),
@@ -91,7 +91,7 @@ if (in.is3D())
 }
 else
 {
-	HipKernels::hip_kernel_translate2D<T><<<BSZ,block_size,0,in.getStream()>>>(
+	hipLaunchKernel(HipKernels::hip_kernel_translate2D<T>,BSZ,block_size,0,in.getStream(),
 		in(),
 		out(),
 		in.getxyz(),
@@ -328,7 +328,7 @@ void powerClass(int		in_gridSize,
 {
 #ifdef HIP
 	dim3 grid_size(in_gridSize);
-	hip_kernel_powerClass<DATA3D><<<grid_size,in_blocksize,0,0>>>(g_image,
+	hipLaunchKernel(hip_kernel_powerClass<DATA3D>,grid_size,in_blocksize,0,0,g_image,
 		g_spectrum,
 		image_size,
 		spectrum_size,
@@ -360,7 +360,7 @@ void acc_make_eulers_2D(int grid_size, int block_size,
 		unsigned long orientation_num)
 {
 #ifdef HIP
-	hip_kernel_make_eulers_2D<invert><<<grid_size,block_size,0,stream>>>(
+	hipLaunchKernel(hip_kernel_make_eulers_2D<invert>,grid_size,block_size,0,stream,
 		alphas,
 		eulers,
 		orientation_num);
@@ -372,7 +372,7 @@ void acc_make_eulers_2D(int grid_size, int block_size,
 
 template<bool invert,bool doL,bool doR>
 void acc_make_eulers_3D(int grid_size, int block_size,
-		hipstream_t stream,
+		hipStream_t stream,
 		XFLOAT *alphas,
 		XFLOAT *betas,
 		XFLOAT *gammas,
@@ -382,7 +382,7 @@ void acc_make_eulers_3D(int grid_size, int block_size,
 		XFLOAT *R)
 {
 #ifdef HIP
-	hip_kernel_make_eulers_3D<invert,doL,doR><<<grid_size,block_size,0,stream>>>(
+	hipLaunchKernel(hip_kernel_make_eulers_3D<invert,doL,doR>,grid_size,block_size,0,stream,
 		alphas,
 		betas,
 		gammas,
@@ -411,7 +411,7 @@ void InitComplexValue(AccPtr<T> &data, XFLOAT value)
 {
 #ifdef HIP
 	int grid_size = ceil((float)(data.getSize())/(float)INIT_VALUE_BLOCK_SIZE);
-	hip_kernel_init_complex_value<T><<< grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream() >>>(
+	hipLaunchKernel(hip_kernel_init_complex_value<T>, grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream(),
 			~data,
 			value,
 			data.getSize(), INIT_VALUE_BLOCK_SIZE);
@@ -430,7 +430,7 @@ void InitValue(AccPtr<T> &data, T value)
 {
 #ifdef HIP
 	int grid_size = ceil((float)data.getSize()/(float)INIT_VALUE_BLOCK_SIZE);
-	hip_kernel_init_value<T><<< grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream() >>>(
+	hipLaunchKernel(hip_kernel_init_value<T>, grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream(),
 			~data,
 			value,
 			data.getSize(),
@@ -448,7 +448,7 @@ void InitValue(AccPtr<T> &data, T value, size_t Size)
 {
 #ifdef HIP
 	int grid_size = ceil((float)Size/(float)INIT_VALUE_BLOCK_SIZE);
-	hip_kernel_init_value<T><<< grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream() >>>(
+	hipLaunchKernel(hip_kernel_init_value<T>, grid_size, INIT_VALUE_BLOCK_SIZE, 0, data.getStream(),
 			~data,
 			value,
 			Size,
@@ -505,7 +505,7 @@ void frequencyPass(int grid_size, int block_size,
 {
 #ifdef HIP
 	dim3 blocks(grid_size);
-	hip_kernel_frequencyPass<do_highpass><<<blocks,block_size, 0, stream>>>(
+	hipLaunchKernel(hip_kernel_frequencyPass<do_highpass>,blocks,block_size, 0, stream,
 			A,
 			ori_size,
 			Xdim,
@@ -558,7 +558,7 @@ void kernel_wavg(
 	//within the same block (this is done to reduce memory loads in the kernel).
 	dim3 block_dim = orientation_num;//ceil((float)orientation_num/(float)REF_GROUP_SIZE);
 	
-	hip_kernel_wavg<REFCTF,REF3D,DATA3D,block_sz><<<block_dim,block_sz,(3*block_sz+9)*sizeof(XFLOAT),stream>>>(
+	hipLaunchKernel(hip_kernel_wavg<REFCTF,REF3D,DATA3D,block_sz>,block_dim,block_sz,(3*block_sz+9)*sizeof(XFLOAT),stream,
 		g_eulers,
 		projector,
 		image_size,
@@ -644,8 +644,8 @@ void diff2_coarse(
 		)
 {
 #ifdef HIP
-		hip_kernel_diff2_coarse<REF3D, DATA3D, block_sz, eulers_per_block, prefetch_fraction>
-		<<<grid_size,block_size,0,stream>>>(
+		hipLaunchKernel(hip_kernel_diff2_coarse<REF3D, DATA3D, block_sz, eulers_per_block, prefetch_fraction>
+		,grid_size,block_size,0,stream,
 			g_eulers,
 			trans_x,
 			trans_y,
@@ -727,8 +727,8 @@ void diff2_CC_coarse(
 {
 #ifdef HIP
 	dim3 CCblocks(grid_size,translation_num);
-	hip_kernel_diff2_CC_coarse<REF3D,DATA3D,block_sz>
-		<<<CCblocks,block_size,0,stream>>>(
+	hipLaunchKernel(hip_kernel_diff2_CC_coarse<REF3D,DATA3D,block_sz>
+		,CCblocks,block_size,0,stream,
 			g_eulers,
 			g_imgs_real,
 			g_imgs_imag,
@@ -801,8 +801,8 @@ void diff2_fine(
 {
 #ifdef HIP
 		dim3 block_dim = grid_size;
-		hip_kernel_diff2_fine<REF3D,DATA3D, block_sz, chunk_sz>
-				<<<block_dim,block_size,0,stream>>>(
+		hipLaunchKernel(hip_kernel_diff2_fine<REF3D,DATA3D, block_sz, chunk_sz>,
+				block_dim,block_size,0,stream,
 					g_eulers,
 					g_imgs_real,
 					g_imgs_imag,
@@ -891,8 +891,8 @@ void diff2_CC_fine(
 {
 #ifdef HIP
 	dim3 block_dim = grid_size;
-	hip_kernel_diff2_CC_fine<REF3D,DATA3D,block_sz,chunk_sz>
-			<<<block_dim,block_size,0,stream>>>(
+	hipLaunchKernel(hip_kernel_diff2_CC_fine<REF3D,DATA3D,block_sz,chunk_sz>,
+			block_dim,block_size,0,stream,
 				g_eulers,
 				g_imgs_real,
 				g_imgs_imag,
@@ -970,8 +970,8 @@ void kernel_weights_exponent_coarse(
 	long int block_num = ceilf( ((double)nr_coarse_orient*nr_coarse_trans*num_classes) / (double)SUMW_BLOCK_SIZE );
 
 #ifdef HIP
-	hip_kernel_weights_exponent_coarse<T>
-	<<<block_num,SUMW_BLOCK_SIZE,0,g_Mweight.getStream()>>>(
+	hipLaunchKernel(hip_kernel_weights_exponent_coarse<T>,
+	block_num,SUMW_BLOCK_SIZE,0,g_Mweight.getStream(),
 			~g_pdf_orientation,
 			~g_pdf_orientation_zeros,
 			~g_pdf_offset,
@@ -1002,9 +1002,9 @@ void kernel_exponentiate(
 {
 	int blockDim = (int) ceilf( (double)array.getSize() / (double)BLOCK_SIZE );
 #ifdef HIP
-	hip_kernel_exponentiate<T>
-	<<< blockDim,BLOCK_SIZE,0,array.getStream()>>>
-	(~array, add, array.getSize());
+	hipLaunchKernel(hip_kernel_exponentiate<T>,
+	 blockDim,BLOCK_SIZE,0,array.getStream(),
+	~array, add, array.getSize());
 #else
 	CpuKernels::exponentiate<T>
 	(~array, add, array.getSize());
