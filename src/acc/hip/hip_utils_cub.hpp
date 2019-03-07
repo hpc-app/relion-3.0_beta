@@ -12,18 +12,26 @@
 #if(defined(HipCubLog) && defined(__HIP_ARCH__) && (__HIP_ARCH__<= 520)) // Intetionally force a warning for new arch
 	#undef HipCubLog
 #endif
-#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_radix_sort_hip.hpp"
-#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_reduce_hip.hpp"
-#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_scan_hip.hpp"
-#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_select_hip.hpp"
-#include "src/acc/hip/rocPRIM/hipcub/include/hipcub/config.hpp"
-#include <src/acc/hip/rocPRIM/rocprim/include/rocprim/rocprim.hpp>
+//#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_radix_sort_hip.hpp"
+//#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_reduce_hip.hpp"
+//#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_scan_hip.hpp"
+//#include "src/acc/hip/rocPRIM/rocprim/include/rocprim/device/device_select_hip.hpp"
+//#include "src/acc/hip/rocPRIM/hipcub/include/hipcub/config.hpp"
+//#include <src/acc/hip/rocPRIM/rocprim/include/rocprim/rocprim.hpp>
+
+#include <rocprim/rocprim.hpp>
+#include <rocprim/rocprim_hip.hpp>
+#include <rocprim/rocprim_hc.hpp>
+#include <rocprim/device/device_radix_sort_hip.hpp>
+#include <rocprim/device/device_reduce_hip.hpp>
+#include <rocprim/device/device_scan_hip.hpp>
+#include <rocprim/device/device_select_hip.hpp>
 
 
+#include <hipcub/rocprim/util_type.hpp>
+#include <hipcub/hipcub.hpp>
 
 namespace HipKernels
-{
-namespace hipcub
 {
 template <typename T>
 static std::pair<int, T> getArgMaxOnDevice(AccPtr<T> &ptr)
@@ -352,7 +360,6 @@ if (in.getAllocator() == NULL)
 
 	alloc->markReadyEvent(stream);
 	alloc->doFreeWhenReady();
-}
 }
 } // namespace HipKernels
 #endif

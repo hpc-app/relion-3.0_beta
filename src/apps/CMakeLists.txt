@@ -113,9 +113,13 @@ endif(GUI)
 
 if (HIP_FOUND)
 
-set(CMAKE_CXX_COMPILER /opt/rocm/bin/hipcc)
-set(HIP_INCLUDE_PATH /opt/rocm/include)
-include_directories("${HIP_INCLUDE_PATH}")
+    set(CMAKE_CXX_COMPILER /opt/rocm/bin/hipcc)
+
+    set(HIP_INCLUDE_PATH /opt/rocm/include)
+    include_directories("${HIP_INCLUDE_PATH}")
+
+    find_package(rocprim REQUIRED CONFIG PATHS "/opt/rocm/rocprim")
+    find_package(hipcub REQUIRED CONFIG PATHS "/opt/rocm/hipcub")
 
     file(GLOB REL_HIP_SRC "${CMAKE_SOURCE_DIR}/src/acc/hip/*.hip.cpp" "${CMAKE_SOURCE_DIR}/src/acc/hip/hip_kernels/*.hip.cpp" )
     hip_add_library(relion_gpu_util ${REL_HIP_SRC})
@@ -145,10 +149,20 @@ include_directories("${HIP_INCLUDE_PATH}")
     else()
 	    target_link_libraries(relion_gpu_util relion_lib)
 	    target_link_libraries(relion_gpu_util ${HIP_HIPFFT_LIBRARIES})
+	    target_link_libraries(relion_gpu_util
+					roc::rocprim
+					roc::rocprim_hip
+					hip::hipcub
+				 )
     endif()
     
     target_link_libraries(relion_lib relion_gpu_util ${HIP_HIPFFT_LIBRARIES})
     target_link_libraries(relion_lib relion_gpu_util ${HIP_HIPFFT_LIBRARIES} ${HIP_hiprand_LIBRARY})
+    target_link_libraries(relion_lib relion_gpu_util
+				roc::rocprim
+				roc::rocprim_hip
+				hip::hipcub
+			 )
     
 endif(HIP_FOUND)
 
