@@ -1,7 +1,6 @@
 #include "src/acc/acc_projector.h"
 #include <signal.h>
 
-
 bool AccProjector::setMdlDim(
 		int xdim, int ydim, int zdim,
 		int inity, int initz,
@@ -59,8 +58,8 @@ bool AccProjector::setMdlDim(
 
 
 		// -- Allocate and copy data using very clever HIP memcpy-functions
-		HANDLE_ERROR(hipMalloc3DArray(texArrayReal, &desc, volumeSize));
-		HANDLE_ERROR(hipMalloc3DArray(texArrayImag, &desc, volumeSize));
+		HANDLE_ERROR(hipMalloc3DArray(texArrayReal, &desc, volumeSize, 0));
+		HANDLE_ERROR(hipMalloc3DArray(texArrayImag, &desc, volumeSize, 0));
 
 		// -- Descriptors of the channel(s) in the texture(s)
 		resDesc_real.res.array.array = *texArrayReal;
@@ -70,8 +69,9 @@ bool AccProjector::setMdlDim(
 	}
 	else // 2D model
 	{
-		HANDLE_ERROR(hipMallocPitch(&texArrayReal2D, &pitch2D, sizeof(XFLOAT)*mdlX,mdlY));
-		HANDLE_ERROR(hipMallocPitch(&texArrayImag2D, &pitch2D, sizeof(XFLOAT)*mdlX,mdlY));
+        // Jerry: remove temporarily and focus on rocPRIM firstly.
+		//HANDLE_ERROR(hipMallocPitch(&texArrayReal2D, &pitch2D, sizeof(XFLOAT)*mdlX,mdlY));
+		//HANDLE_ERROR(hipMallocPitch(&texArrayImag2D, &pitch2D, sizeof(XFLOAT)*mdlX,mdlY));
 
 		// -- Descriptors of the channel(s) in the texture(s)
 		resDesc_real.resType = hipResourceTypePitch2D;
