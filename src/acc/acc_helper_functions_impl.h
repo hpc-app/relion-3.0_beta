@@ -484,7 +484,7 @@ void runBackProjectKernel(
 	if(BP.mdlZ==1)
 	{
 #ifdef HIP
-		hipLaunchKernel(hip_kernel_backproject2D,imageCount,BP_2D_BLOCK_SIZE,0,optStream,
+		hipLaunchKernelGGL(hip_kernel_backproject2D,imageCount,BP_2D_BLOCK_SIZE,0,optStream,
 				d_img_real, d_img_imag,
 				trans_x, trans_y,
 				d_weights, d_Minvsigma2s, d_ctfs,
@@ -512,7 +512,7 @@ void runBackProjectKernel(
 		{
 			if(data_is_3D)
 #ifdef HIP
-				hipLaunchKernel(hip_kernel_backprojectSGD<true>,imageCount,BP_DATA3D_BLOCK_SIZE,0,optStream,
+				hipLaunchKernelGGL(hip_kernel_backprojectSGD<true>,imageCount,BP_DATA3D_BLOCK_SIZE,0,optStream,
 					projector, d_img_real, d_img_imag,
 					trans_x, trans_y, trans_z,
 					d_weights, d_Minvsigma2s, d_ctfs,
@@ -534,7 +534,7 @@ void runBackProjectKernel(
 #endif
 			else
 #ifdef HIP
-				hipLaunchKernel(hip_kernel_backprojectSGD<false>,imageCount,BP_REF3D_BLOCK_SIZE,0,optStream,
+				hipLaunchKernelGGL(hip_kernel_backprojectSGD<false>,imageCount,BP_REF3D_BLOCK_SIZE,0,optStream,
 					projector, d_img_real, d_img_imag,
 					trans_x, trans_y, trans_z,
 					d_weights, d_Minvsigma2s, d_ctfs,
@@ -559,7 +559,7 @@ void runBackProjectKernel(
 		{
 			if(data_is_3D)
 #ifdef HIP
-				hipLaunchKernel(hip_kernel_backproject3D<true>,imageCount,BP_DATA3D_BLOCK_SIZE,0,optStream,
+				hipLaunchKernelGGL(hip_kernel_backproject3D<true>,imageCount,BP_DATA3D_BLOCK_SIZE,0,optStream,
 					d_img_real, d_img_imag,
 					trans_x, trans_y, trans_z,
 					d_weights, d_Minvsigma2s, d_ctfs,
@@ -581,7 +581,7 @@ void runBackProjectKernel(
 #endif
 			else
 #ifdef HIP
-				hipLaunchKernel(hip_kernel_backproject3D<false>,imageCount,BP_REF3D_BLOCK_SIZE,0,optStream,
+				hipLaunchKernelGGL(hip_kernel_backproject3D<false>,imageCount,BP_REF3D_BLOCK_SIZE,0,optStream,
 					d_img_real, d_img_imag,
 					trans_x, trans_y, trans_z,
 					d_weights, d_Minvsigma2s, d_ctfs,
@@ -632,7 +632,7 @@ void mapAllWeightsToMweights(
 	size_t combinations = orientation_num*translation_num;
 	int grid_size = ceil((float)(combinations)/(float)WEIGHT_MAP_BLOCK_SIZE);
 #ifdef HIP
-	hipLaunchKernel(hip_kernel_allweights_to_mweights, grid_size, WEIGHT_MAP_BLOCK_SIZE, 0, stream,
+	hipLaunchKernelGGL(hip_kernel_allweights_to_mweights, grid_size, WEIGHT_MAP_BLOCK_SIZE, 0, stream,
 			d_iorient,
 			d_allweights,
 			d_mweights,
@@ -1350,7 +1350,7 @@ void runCollect2jobs(	int grid_dim,
 #ifdef HIP
 	dim3 numblocks(grid_dim);
 	size_t shared_buffer = sizeof(XFLOAT)*SUMW_BLOCK_SIZE*5; // x+y+z+myp+weights
-	hipLaunchKernel(hip_kernel_collect2jobs<true>,numblocks,SUMW_BLOCK_SIZE,shared_buffer,
+	hipLaunchKernelGGL(hip_kernel_collect2jobs<true>,numblocks,SUMW_BLOCK_SIZE,shared_buffer,
 			oo_otrans_x,          // otrans-size -> make const
 			oo_otrans_y,          // otrans-size -> make const
 			oo_otrans_z,          // otrans-size -> make const
@@ -1402,7 +1402,7 @@ void runCollect2jobs(	int grid_dim,
 #ifdef HIP
 	dim3 numblocks(grid_dim);
 	size_t shared_buffer = sizeof(XFLOAT)*SUMW_BLOCK_SIZE*4; // x+y+myp+weights
-	hipLaunchKernel(hip_kernel_collect2jobs<false>,numblocks,SUMW_BLOCK_SIZE,shared_buffer,
+	hipLaunchKernelGGL(hip_kernel_collect2jobs<false>,numblocks,SUMW_BLOCK_SIZE,shared_buffer,
 			oo_otrans_x,          // otrans-size -> make const
 			oo_otrans_y,          // otrans-size -> make const
 			oo_otrans_z,          // otrans-size -> make const
@@ -1535,7 +1535,7 @@ void windowFourierTransform2(
 
 #ifdef HIP
 		dim3 grid_dim(ceil((float)(iX*iY*iZ) / (float) WINDOW_FT_BLOCK_SIZE),Npsi);
-		hipLaunchKernel(hip_kernel_window_fourier_transform<true>, grid_dim, WINDOW_FT_BLOCK_SIZE, 0, d_out.getStream(),
+		hipLaunchKernelGGL(hip_kernel_window_fourier_transform<true>, grid_dim, WINDOW_FT_BLOCK_SIZE, 0, d_out.getStream(),
 				&d_in(pos),
 				~d_out,
 				iX, iY, iZ, iX * iY, //Input dimensions
@@ -1562,7 +1562,7 @@ void windowFourierTransform2(
 	{
 #ifdef HIP
 		dim3 grid_dim(ceil((float)(oX*oY*oZ) / (float) WINDOW_FT_BLOCK_SIZE),Npsi);
-		hipLaunchKernel(hip_kernel_window_fourier_transform<false>, grid_dim, WINDOW_FT_BLOCK_SIZE, 0, d_out.getStream(),
+		hipLaunchKernelGGL(hip_kernel_window_fourier_transform<false>, grid_dim, WINDOW_FT_BLOCK_SIZE, 0, d_out.getStream(),
 				&d_in(pos),
 				~d_out,
 				iX, iY, iZ, iX * iY, //Input dimensions

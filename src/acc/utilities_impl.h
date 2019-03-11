@@ -247,7 +247,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Initialize randomization by particle ID, like on the CPU-side
-    hipLaunchKernel(hip_kernel_initRND,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    hipLaunchKernelGGL(hip_kernel_initRND,RND_BLOCK_NUM,RND_BLOCK_SIZE,
                                      seed,
                                     ~RandomStates);
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
@@ -255,7 +255,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     // Create noise image with the correct spectral profile
     if(is3D)
     {
-    	hipLaunchKernel(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
                                     ~accMLO->transformer1.fouriers,
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
@@ -264,7 +264,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     }
     else
     {
-    	hipLaunchKernel(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
     	                                    ~accMLO->transformer1.fouriers,
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
@@ -323,7 +323,7 @@ static void TranslateAndNormCorrect(MultidimArray<RFLOAT > &img_in,
 	{
 #ifdef HIP
 		int BSZ = ( (int) ceilf(( float)temp.getSize() /(float)BLOCK_SIZE));
-		hipLaunchKernel(HipKernels::hip_kernel_multi<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),normcorr,temp.getSize());
+		hipLaunchKernelGGL(HipKernels::hip_kernel_multi<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),normcorr,temp.getSize());
 #else
 		CpuKernels::cpu_kernel_multi<XFLOAT>(temp(),normcorr, temp.getSize());
 #endif
@@ -335,9 +335,9 @@ static void TranslateAndNormCorrect(MultidimArray<RFLOAT > &img_in,
 #ifdef HIP
 	int BSZ = ( (int) ceilf(( float)temp.getSize() /(float)BLOCK_SIZE));
 	if (DATA3D)
-		hipLaunchKernel(HipKernels::hip_kernel_translate3D<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,img_in.zdim,xOff,yOff,zOff);
+		hipLaunchKernelGGL(HipKernels::hip_kernel_translate3D<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,img_in.zdim,xOff,yOff,zOff);
 	else
-		hipLaunchKernel(HipKernels::hip_kernel_translate2D<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,xOff,yOff);
+		hipLaunchKernelGGL(HipKernels::hip_kernel_translate2D<XFLOAT>,BSZ,BLOCK_SIZE,0,temp.getStream(),temp(),img_out(),img_in.zyxdim,img_in.xdim,img_in.ydim,xOff,yOff);
 	//LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 #else
 	if (DATA3D)
@@ -405,7 +405,7 @@ static void softMaskBackgroundValue(
 {
 	int block_dim = 128; //TODO: set balanced (hardware-dep?)
 #ifdef HIP
-		hipLaunchKernel(hip_kernel_softMaskBackgroundValue,block_dim,SOFTMASK_BLOCK_SIZE,0, vol.getStream(),
+		hipLaunchKernelGGL(hip_kernel_softMaskBackgroundValue,block_dim,SOFTMASK_BLOCK_SIZE,0, vol.getStream(),
 				~vol,
 				vol.getxyz(),
 				vol.getx(),
@@ -450,7 +450,7 @@ static void cosineFilter(
 {
 	int block_dim = 128; //TODO: set balanced (hardware-dep?)
 #ifdef HIP
-	hipLaunchKernel(hip_kernel_cosineFilter,block_dim,SOFTMASK_BLOCK_SIZE,0,vol.getStream(),
+	hipLaunchKernelGGL(hip_kernel_cosineFilter,block_dim,SOFTMASK_BLOCK_SIZE,0,vol.getStream(),
 			~vol,
 			vol.getxyz(),
 			vol.getx(),
@@ -497,7 +497,7 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 {
 #ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	hipLaunchKernel(hip_kernel_centerFFT_2D,blocks,block_size,0,stream,
+	hipLaunchKernelGGL(hip_kernel_centerFFT_2D,blocks,block_size,0,stream,
 				img_in,
 				image_size,
 				xdim,
@@ -525,7 +525,7 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 {
 #ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	hipLaunchKernel(hip_kernel_centerFFT_2D,blocks,block_size,
+	hipLaunchKernelGGL(hip_kernel_centerFFT_2D,blocks,block_size,
 				img_in,
 				image_size,
 				xdim,
@@ -556,7 +556,7 @@ void centerFFT_3D(int grid_size, int batch_size, int block_size,
 {
 #ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	hipLaunchKernel(hip_kernel_centerFFT_3D,blocks,block_size, 0, stream,
+	hipLaunchKernelGGL(hip_kernel_centerFFT_3D,blocks,block_size, 0, stream,
 				img_in,
 				image_size,
 				xdim,
@@ -596,7 +596,7 @@ void kernel_exponentiate_weights_fine(	XFLOAT *g_pdf_orientation,
 	long block_num = ceil((double)job_num / (double)SUMW_BLOCK_SIZE);
 
 #ifdef HIP
-	hipLaunchKernel(hip_kernel_exponentiate_weights_fine,block_num,SUMW_BLOCK_SIZE,0,stream,
+	hipLaunchKernelGGL(hip_kernel_exponentiate_weights_fine,block_num,SUMW_BLOCK_SIZE,0,stream,
 		g_pdf_orientation,
 		g_pdf_orientation_zeros,
 		g_pdf_offset,

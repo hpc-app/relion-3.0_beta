@@ -147,7 +147,7 @@ void arrayOverThreshold(AccPtr<T> &data, AccPtr<bool> &passed, T threshold)
 {
 #ifdef HIP
 	int grid_size = ceil((float)data.getSize()/(float)OVER_THRESHOLD_BLOCK_SIZE);
-	hipLaunchKernel(hip_kernel_array_over_threshold<T>, grid_size, OVER_THRESHOLD_BLOCK_SIZE, 0, data.getStream(),
+	hipLaunchKernelGGL(hip_kernel_array_over_threshold<T>, grid_size, OVER_THRESHOLD_BLOCK_SIZE, 0, data.getStream(),
 			~data,
 			~passed,
 			threshold,
@@ -182,7 +182,7 @@ size_t findThresholdIdxInCumulativeSum(AccPtr<T> &data, T threshold)
 		idx[0] = 0;
 
 		idx.putOnDevice();
-		hipLaunchKernel(hip_kernel_find_threshold_idx_in_cumulative, grid_size, FIND_IN_CUMULATIVE_BLOCK_SIZE, 0, data.getStream(),
+		hipLaunchKernelGGL(hip_kernel_find_threshold_idx_in_cumulative, grid_size, FIND_IN_CUMULATIVE_BLOCK_SIZE, 0, data.getStream(),
 				~data,
 				threshold,
 				data.getSize()-1,
