@@ -5,6 +5,7 @@
 
 #include <hiprand/hiprand.h>
 #include <hiprand/hiprand_kernel.h>
+#include <hip/hip_runtime.h>
 
 /// Needed explicit template instantiations
 template __global__ void hip_kernel_make_eulers_2D<true>(XFLOAT *,
