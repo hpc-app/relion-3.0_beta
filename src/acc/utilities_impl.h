@@ -247,7 +247,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Initialize randomization by particle ID, like on the CPU-side
-    hipLaunchKernelGGL(hip_kernel_initRND,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    hipLaunchKernelGGL(hip_kernel_initRND,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
                                      seed,
                                     ~RandomStates);
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
@@ -255,7 +255,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     // Create noise image with the correct spectral profile
     if(is3D)
     {
-    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
                                     ~accMLO->transformer1.fouriers,
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
@@ -264,7 +264,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     }
     else
     {
-    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE,
+    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
     	                                    ~accMLO->transformer1.fouriers,
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
@@ -525,7 +525,7 @@ void centerFFT_2D(int grid_size, int batch_size, int block_size,
 {
 #ifdef HIP
 	dim3 blocks(grid_size, batch_size);
-	hipLaunchKernelGGL(hip_kernel_centerFFT_2D,blocks,block_size,
+	hipLaunchKernelGGL(hip_kernel_centerFFT_2D,blocks,block_size,0,0,
 				img_in,
 				image_size,
 				xdim,

@@ -188,7 +188,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 
 	CTIC(timer,"PRE-multi_0");
 	int Bsize( (int) ceilf(( float)d_Fmic.getSize()/(float)BLOCK_SIZE));
-	hipLaunchKernelGGL(hip_kernel_convol_B,Bsize,BLOCK_SIZE,   ~d_Fmic,
+	hipLaunchKernelGGL(hip_kernel_convol_B,Bsize,BLOCK_SIZE,0,0, ~d_Fmic,
 												  ~d_Fmsk,
 												  ~d_Fcov,
 												  d_Fmic.getSize());
@@ -208,14 +208,14 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 	CTOC(timer,"PRE-Transform_0");
 
 	Bsize = ( (int) ceilf(( float)hipTransformer2.reals.getSize()/(float)BLOCK_SIZE));
-	hipLaunchKernelGGL(hip_kernel_multi<XFLOAT>,Bsize,BLOCK_SIZE,
+	hipLaunchKernelGGL(hip_kernel_multi<XFLOAT>,Bsize,BLOCK_SIZE,0,0,
 			~hipTransformer2.reals,
 			~hipTransformer2.reals,
 			(XFLOAT) normfft,
 			hipTransformer2.reals.getSize());
 	LAUNCH_HANDLE_ERROR(hipGetLastError());
 	CTIC(timer,"PRE-multi_1");
-	hipLaunchKernelGGL(hip_kernel_multi<XFLOAT>,Bsize,BLOCK_SIZE,
+	hipLaunchKernelGGL(hip_kernel_multi<XFLOAT>,Bsize,BLOCK_SIZE,0,0,
 			~hipTransformer2.reals,
 			~hipTransformer2.reals,
 			~d_Mstddev,
@@ -236,7 +236,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 
 	CTIC(timer,"PRE-multi_2");
 	Bsize = ( (int) ceilf(( float)d_Fmsk.getSize()/(float)BLOCK_SIZE));
-	hipLaunchKernelGGL(hip_kernel_convol_A,Bsize,BLOCK_SIZE, 	  ~d_Fmsk,
+	hipLaunchKernelGGL(hip_kernel_convol_A,Bsize,BLOCK_SIZE,0,0,~d_Fmsk,
 													  ~d_Fmic2,
 													  ~d_Fcov,
 													  d_Fmsk.getSize());
@@ -259,7 +259,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 
 	CTIC(timer,"PRE-multi_3");
 	Bsize = ( (int) ceilf(( float)d_Mstddev.getSize()/(float)BLOCK_SIZE));
-		hipLaunchKernelGGL(hip_kernel_finalizeMstddev,Bsize,BLOCK_SIZE,
+		hipLaunchKernelGGL(hip_kernel_finalizeMstddev,Bsize,BLOCK_SIZE,0,0,
 		~d_Mstddev,
 		~hipTransformer2.reals,
 		normfft,
@@ -496,7 +496,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 		CTIC(timer,"FourierTransform_0");
 		micTransformer.forward();
 		int FMultiBsize = ( (int) ceilf(( float)micTransformer.fouriers.getSize()*2/(float)BLOCK_SIZE));
-		hipLaunchKernelGGL(HipKernels::hip_kernel_multi<XFLOAT>,FMultiBsize,BLOCK_SIZE,
+		hipLaunchKernelGGL(HipKernels::hip_kernel_multi<XFLOAT>,FMultiBsize,BLOCK_SIZE,0,0,
 				(XFLOAT*)~micTransformer.fouriers,
 				(XFLOAT)1/((XFLOAT)(micTransformer.reals.getSize())),
 				micTransformer.fouriers.getSize()*2);
@@ -533,7 +533,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 		// Also calculate the FFT of the squared micrograph
 		CTIC(timer,"SquareImic");
 
-		hipLaunchKernelGGL(hip_kernel_square,FMultiBsize,BLOCK_SIZE,
+		hipLaunchKernelGGL(hip_kernel_square,FMultiBsize,BLOCK_SIZE,0,0,
 				~micTransformer.reals,
 				micTransformer.reals.getSize());
 		LAUNCH_HANDLE_ERROR(hipGetLastError());
@@ -542,7 +542,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 		CTIC(timer,"FourierTransform_1");
 
 		micTransformer.forward();
-		hipLaunchKernelGGL(HipKernels::hip_kernel_multi<XFLOAT>,FMultiBsize,BLOCK_SIZE,
+		hipLaunchKernelGGL(HipKernels::hip_kernel_multi<XFLOAT>,FMultiBsize,BLOCK_SIZE,0,0,
 				(XFLOAT*)~micTransformer.fouriers,
 				(XFLOAT)1/((XFLOAT)(micTransformer.reals.getSize())),
 				micTransformer.fouriers.getSize()*2);
@@ -778,7 +778,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 	dim3 blocks((int)ceilf((float)FauxStride/(float)BLOCK_SIZE),1);
 	if(basePckr->do_ctf)
 	{
-		hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,
+		hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,0,0,
 													  ~hipTransformer1.fouriers,
 													  ~d_ctf,
 													  0,
@@ -788,7 +788,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 	}
 	else
 	{
-		hipLaunchKernelGGL(hip_kernel_rotateOnly,blocks,BLOCK_SIZE,
+		hipLaunchKernelGGL(hip_kernel_rotateOnly,blocks,BLOCK_SIZE,0,0,
 													  ~hipTransformer1.fouriers,
 													  0,
 													  projKernel,
@@ -882,7 +882,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 				dim3 blocks((int)ceilf((float)FauxStride/(float)BLOCK_SIZE),hipTransformer1.batchSize[psiIter]);
 				if(basePckr->do_ctf)
 				{
-					hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,
+					hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,0,0,
 															  ~hipTransformer1.fouriers,
 															  ~d_ctf,
 															  DEG2RAD(basePckr->psi_sampling),
@@ -892,7 +892,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 				}
 				else
 				{
-					hipLaunchKernelGGL(hip_kernel_rotateOnly,blocks,BLOCK_SIZE,
+					hipLaunchKernelGGL(hip_kernel_rotateOnly,blocks,BLOCK_SIZE,0,0,
 															  ~hipTransformer1.fouriers,
 															  DEG2RAD(basePckr->psi_sampling),
 															  projKernel,
@@ -905,7 +905,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 				// Now multiply template and micrograph to calculate the cross-correlation
 				CTIC(timer,"convol");
 				dim3 blocks2( (int) ceilf(( float)FauxStride/(float)BLOCK_SIZE),hipTransformer1.batchSize[psiIter]);
-				hipLaunchKernelGGL(hip_kernel_batch_convol_A,blocks2,BLOCK_SIZE,
+				hipLaunchKernelGGL(hip_kernel_batch_convol_A,blocks2,BLOCK_SIZE,0,0,
 					~hipTransformer1.fouriers,
 					~d_Fmic,
 					FauxStride);
@@ -933,7 +933,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 				CTIC(timer,"probRatio");
 				HANDLE_ERROR(hipDeviceSynchronize());
 				dim3 PR_blocks(ceilf((float)(hipTransformer1.reals.getSize()/hipTransformer1.batchSize[psiIter])/(float)PROBRATIO_BLOCK_SIZE));
-				hipLaunchKernelGGL(hip_kernel_probRatio,PR_blocks,PROBRATIO_BLOCK_SIZE,
+				hipLaunchKernelGGL(hip_kernel_probRatio,PR_blocks,PROBRATIO_BLOCK_SIZE,0,0,
 						~d_Mccf_best,
 						~d_Mpsi_best,
 						~hipTransformer1.reals,
