@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <time.h>
-#include <math.h>
+//#include <math.h>
 #include <ctime>
 #include <iostream>
 #include <fstream>
@@ -198,7 +198,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 	CTIC(timer,"PRE-window_0");
 	windowFourierTransform2(
 			d_Fcov,
-			hipTransformer2.fouriers,
+			static_cast<AccPtr<ACCCOMPLEX>>(hipTransformer2.fouriers),
 			x, y, 1,
 			workSize/2+1, workSize, 1);
 	CTOC(timer,"PRE-window_0");

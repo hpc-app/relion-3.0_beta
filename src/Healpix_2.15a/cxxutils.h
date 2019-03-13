@@ -103,7 +103,7 @@ template<typename I> inline unsigned int isqrt (I arg)
 		return unsigned (sqrt(arg+0.5));
 	  else
 	  {
-		  long double arg2 = arg;
+		  double arg2 = arg;
 		  return unsigned (sqrt(arg2+0.5));
 	  }
   }
