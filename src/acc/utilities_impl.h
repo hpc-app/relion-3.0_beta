@@ -238,8 +238,8 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
 
 #ifdef HIP
     // Set up states to seeda and run randomization on the GPU
-    // AccDataTypes::Image<curandState > RandomStates(RND_BLOCK_NUM*RND_BLOCK_SIZE,ptrFactory);
-    AccPtr<curandState> RandomStates = RandomImage.make<curandState>(RND_BLOCK_NUM*RND_BLOCK_SIZE);
+    // AccDataTypes::Image<hiprandState > RandomStates(RND_BLOCK_NUM*RND_BLOCK_SIZE,ptrFactory);
+    AccPtr<hiprandState> RandomStates = RandomImage.make<hiprandState>(RND_BLOCK_NUM*RND_BLOCK_SIZE);
     RandomStates.deviceAlloc();
 
     NoiseSpectra.cpToDevice();
