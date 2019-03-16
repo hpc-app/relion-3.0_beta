@@ -351,6 +351,43 @@ void powerClass(int		in_gridSize,
 #endif
 }
 
+template<bool DATA3D>
+void powerClass(int		in_gridSize,
+				int			in_blocksize,
+				hipFloatComplex  *g_image,
+				XFLOAT      *g_spectrum,
+				size_t       image_size,
+				size_t       spectrum_size,
+				int          xdim,
+				int          ydim,
+				int          zdim,
+				int          res_limit,
+				XFLOAT      *g_highres_Xi2)
+{
+#ifdef HIP
+	dim3 grid_size(in_gridSize);
+	hipLaunchKernelGGL(hip_kernel_powerClass<DATA3D>,grid_size,in_blocksize,0,0,g_image,
+		g_spectrum,
+		image_size,
+		spectrum_size,
+		xdim,
+		ydim,
+		zdim,
+		res_limit,
+		g_highres_Xi2);
+#else
+	CpuKernels::powerClass<DATA3D>(in_gridSize,
+		g_image,
+		g_spectrum,
+		image_size,
+		spectrum_size,
+		xdim,
+		ydim,
+		zdim,
+		res_limit,
+		g_highres_Xi2);
+#endif
+}
 
 template<bool invert>
 void acc_make_eulers_2D(int grid_size, int block_size,
@@ -493,6 +530,49 @@ template<bool do_highpass>
 void frequencyPass(int grid_size, int block_size,
 				hipStream_t stream,
 				ACCCOMPLEX *A,
+				long int ori_size,
+				size_t Xdim,
+				size_t Ydim,
+				size_t Zdim,
+				XFLOAT edge_low,
+				XFLOAT edge_width,
+				XFLOAT edge_high,
+				XFLOAT angpix,
+				size_t image_size)
+{
+#ifdef HIP
+	dim3 blocks(grid_size);
+	hipLaunchKernelGGL(hip_kernel_frequencyPass<do_highpass>,blocks,block_size, 0, stream,
+			A,
+			ori_size,
+			Xdim,
+			Ydim,
+			Zdim,
+			edge_low,
+			edge_width,
+			edge_high,
+			angpix,
+			image_size);
+#else
+	CpuKernels::kernel_frequencyPass<do_highpass>(grid_size, block_size,
+			A,
+			ori_size,
+			Xdim,
+			Ydim,
+			Zdim,
+			edge_low,
+			edge_width,
+			edge_high,
+			angpix,
+			image_size);
+#endif
+}
+
+template<bool do_highpass>
+void frequencyPass(int grid_size, int block_size,
+				hipStream_t stream,
+				//ACCCOMPLEX *A,
+				hipFloatComplex *A,
 				long int ori_size,
 				size_t Xdim,
 				size_t Ydim,
