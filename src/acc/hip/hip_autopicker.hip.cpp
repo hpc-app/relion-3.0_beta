@@ -170,9 +170,13 @@ void AutoPickerHip::run()
 
 }
 
-void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic,
+void AutoPickerHip::calculateStddevAndMeanUnderMask(//AccPtr< ACCCOMPLEX > &d_Fmic,
+        AccPtr< hipfftComplex > &d_Fmic,
         AccPtr< ACCCOMPLEX > &d_Fmic2,
         AccPtr< ACCCOMPLEX > &d_Fmsk,
+        //AccPtr< hipfftComplex > &d_Fmic,
+        //AccPtr< hipfftComplex > &d_Fmic2,
+        //AccPtr< hipfftComplex > &d_Fmsk,
 		int nr_nonzero_pixels_mask, AccPtr< XFLOAT > &d_Mstddev,
         AccPtr< XFLOAT > &d_Mmean,
 		size_t x, size_t y, size_t mic_size, size_t workSize)
@@ -183,7 +187,8 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 
 	RFLOAT normfft = (RFLOAT)(mic_size * mic_size) / (RFLOAT)nr_nonzero_pixels_mask;
 
-	AccPtr< ACCCOMPLEX > d_Fcov = d_Fmic.make< ACCCOMPLEX >();
+	//AccPtr< ACCCOMPLEX > d_Fcov = d_Fmic.make< ACCCOMPLEX >();
+	AccPtr< hipfftComplex > d_Fcov = d_Fmic.make< hipfftComplex >();
 	d_Fcov.deviceAlloc(d_Fmic.getSize());
 
 	CTIC(timer,"PRE-multi_0");
@@ -198,7 +203,8 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 	CTIC(timer,"PRE-window_0");
 	windowFourierTransform2(
 			d_Fcov,
-			static_cast<AccPtr<ACCCOMPLEX>>(hipTransformer2.fouriers),
+			//static_cast<AccPtr<ACCCOMPLEX>>(hipTransformer2.fouriers),
+			hipTransformer2.fouriers,
 			x, y, 1,
 			workSize/2+1, workSize, 1);
 	CTOC(timer,"PRE-window_0");

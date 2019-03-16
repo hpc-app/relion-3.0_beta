@@ -373,7 +373,8 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 							accMLO->transformer1.fouriers.getSize()*2);
 			//LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
-			AccPtr<ACCCOMPLEX> d_Fimg = img_in.make<ACCCOMPLEX>(xSize * ySize * zSize);
+			//AccPtr<ACCCOMPLEX> d_Fimg = img_in.make<ACCCOMPLEX>(xSize * ySize * zSize);
+			AccPtr<hipfftComplex> d_Fimg = img_in.make<hipfftComplex>(xSize * ySize * zSize);
 			d_Fimg.allAlloc();
 			accMLO->transformer1.fouriers.streamSync();
 			windowFourierTransform2(
