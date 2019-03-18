@@ -143,8 +143,9 @@ void MlDeviceBundle::setupFixedSizedObjects()
 	                    CUSTOM ALLOCATOR
 	======================================================*/
 
-	int memAlignmentSize;
-	hipDeviceGetAttribute ( &memAlignmentSize, hipDevAttrTextureAlignment, device_id );
+	//int memAlignmentSize;
+	//hipDeviceGetAttribute ( &memAlignmentSize, hipDevAttrTextureAlignment, device_id );
+	int memAlignmentSize = 4096;
 	allocator = new HipCustomAllocator(0, memAlignmentSize);
 }
 
