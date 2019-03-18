@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <time.h>
-//#include <math.h>
+#include <math.h>
 #include <ctime>
 #include <iostream>
 #include <fstream>
