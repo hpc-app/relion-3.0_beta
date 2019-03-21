@@ -61,8 +61,7 @@ public:
 
 	void autoPickOneMicrograph(FileName &fn_mic, long int imic);
 
-	void calculateStddevAndMeanUnderMask(//AccPtr< ACCCOMPLEX > &d_Fmic, 
-			AccPtr< hipfftComplex > &d_Fmic,
+	void calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic, 
                         AccPtr< ACCCOMPLEX > &d_Fmic2, 
 			AccPtr< ACCCOMPLEX > &d_Fmsk,
 			int nr_nonzero_pixels_mask, AccPtr< XFLOAT > &d_Mstddev, 

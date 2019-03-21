@@ -170,8 +170,7 @@ void AutoPickerHip::run()
 
 }
 
-void AutoPickerHip::calculateStddevAndMeanUnderMask(//AccPtr< ACCCOMPLEX > &d_Fmic,
-        AccPtr< hipfftComplex > &d_Fmic,
+void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic,
         AccPtr< ACCCOMPLEX > &d_Fmic2,
         AccPtr< ACCCOMPLEX > &d_Fmsk,
         //AccPtr< hipfftComplex > &d_Fmic,
@@ -187,8 +186,8 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(//AccPtr< ACCCOMPLEX > &d_Fm
 
 	RFLOAT normfft = (RFLOAT)(mic_size * mic_size) / (RFLOAT)nr_nonzero_pixels_mask;
 
-	//AccPtr< ACCCOMPLEX > d_Fcov = d_Fmic.make< ACCCOMPLEX >();
-	AccPtr< hipfftComplex > d_Fcov = d_Fmic.make< hipfftComplex >();
+	AccPtr< ACCCOMPLEX > d_Fcov = d_Fmic.make< ACCCOMPLEX >();
+	//AccPtr< hipfftComplex > d_Fcov = d_Fmic.make< hipfftComplex >();
 	d_Fcov.deviceAlloc(d_Fmic.getSize());
 
 	CTIC(timer,"PRE-multi_0");

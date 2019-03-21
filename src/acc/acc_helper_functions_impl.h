@@ -1501,10 +1501,10 @@ void runCollect2jobs(	int grid_dim,
 #define WINDOW_FT_BLOCK_SIZE 128
 
 void windowFourierTransform2(
-		//AccPtr<ACCCOMPLEX > &d_in,
-		//AccPtr<ACCCOMPLEX > &d_out,
-		AccPtr<hipfftComplex> &d_in,
-                AccPtr<hipfftComplex> &d_out,
+		AccPtr<ACCCOMPLEX > &d_in,
+		AccPtr<ACCCOMPLEX > &d_out,
+		//AccPtr<hipfftComplex> &d_in,
+                //AccPtr<hipfftComplex> &d_out,
 		size_t iX, size_t iY, size_t iZ, //Input dimensions
 		size_t oX, size_t oY, size_t oZ,  //Output dimensions
 		size_t Npsi,
@@ -1518,8 +1518,8 @@ void windowFourierTransform2(
 //		REPORT_ERROR("windowFourierTransform ERROR: there is a one-to-one map between input and output!");
 
 
-	//deviceInitComplexValue<ACCCOMPLEX>(d_out, (XFLOAT)0.);
-	deviceInitComplexValue<hipfftComplex>(d_out, (XFLOAT)0.);
+	deviceInitComplexValue<ACCCOMPLEX>(d_out, (XFLOAT)0.);
+	//deviceInitComplexValue<hipfftComplex>(d_out, (XFLOAT)0.);
 	HANDLE_ERROR(hipStreamSynchronize(d_out.getStream()));
 
 	if(oX==iX)
@@ -1528,8 +1528,8 @@ void windowFourierTransform2(
 #ifdef HIP
 		hipCpyDeviceToDevice(&d_in(pos), ~d_out, oX*oY*oZ*Npsi, d_out.getStream() );
 #else
-		//memcpy(&d_out[0], &d_in[0], oX*oY*oZ*Npsi*sizeof(ACCCOMPLEX));
-		memcpy(&d_out[0], &d_in[0], oX*oY*oZ*Npsi*sizeof(hipfftComplex));
+		memcpy(&d_out[0], &d_in[0], oX*oY*oZ*Npsi*sizeof(ACCCOMPLEX));
+		//memcpy(&d_out[0], &d_in[0], oX*oY*oZ*Npsi*sizeof(hipfftComplex));
 #endif
 		return;
 	}

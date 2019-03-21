@@ -275,10 +275,10 @@ void runCollect2jobs(	int grid_dim,
 						);
 
 void windowFourierTransform2(
-		//AccPtr<ACCCOMPLEX> &d_in,
-		//AccPtr<ACCCOMPLEX> &d_out,
-		AccPtr<hipfftComplex> &d_in,
-                AccPtr<hipfftComplex> &d_out,
+		AccPtr<ACCCOMPLEX> &d_in,
+		AccPtr<ACCCOMPLEX> &d_out,
+		//AccPtr<hipfftComplex> &d_in,
+                //AccPtr<hipfftComplex> &d_out,
 		size_t iX, size_t iY, size_t iZ, //Input dimensions
 		size_t oX, size_t oY, size_t oZ,  //Output dimensions
 		size_t Npsi = 1,
