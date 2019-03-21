@@ -60,7 +60,7 @@
 #endif
 
 #ifdef FAST_CENTERFFT   // defined if ALTCPU=on *AND* Intel Compiler used
-#include "src/acc/cpu/cuda_stubs.h"
+#include "src/acc/cpu/hip_stubs.h"
 #include "src/acc/settings.h"
 #include "src/acc/cpu/cpu_settings.h"
 #include "src/acc/cpu/cpu_kernels/helper.h"

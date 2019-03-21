@@ -40,7 +40,7 @@ void joinMultipleEPSIntoSinglePDF(FileName fn_pdf, std::vector<FileName> fn_eps)
 
 /* EL: Including all of the std namespace on the global level both in this and
  *     every single file that includes this header will lead to ambiguous
- *     definitions with Cuda. Fixed by adding std:: prefixes to string, vector,
+ *     definitions with Hip. Fixed by adding std:: prefixes to string, vector,
  *     and ofstream.
  */
 // using namespace std;
@@ -49,7 +49,7 @@ void joinMultipleEPSIntoSinglePDF(FileName fn_pdf, std::vector<FileName> fn_eps)
   A simple container class to hold a data point, comprised of an x and y value
   stored in a double. Simple accessors are implemented to set and get the data
   stored.
-  */
+ */
  class CDataPoint
  {
  public:

@@ -18,8 +18,8 @@
  * author citations must be preserved.
  ***************************************************************************/
 #include "src/motioncorr_runner.h"
-#ifdef CUDA
-#include "src/acc/cuda/cuda_mem_utils.h"
+#ifdef HIP
+#include "src/acc/hip/hip_mem_utils.h"
 #endif
 #include "src/micrograph_model.h"
 #include "src/matrix2d.h"
@@ -217,14 +217,14 @@ void MotioncorrRunner::initialise()
 	if (angpix < 0)
 		REPORT_ERROR("ERROR: It is mandatory to provide the pixel size in Angstroms through --angpix.");
 
-#ifdef CUDA
+#ifdef HIP
 	if (do_motioncor2)
 	{
 		if (gpu_ids.length() > 0)
 			untangleDeviceIDs(gpu_ids, allThreadIDs);
 		else if (verb>0)
 			std::cout << "gpu-ids not specified, threads will automatically be mapped to devices (incrementally)."<< std::endl;
-		HANDLE_ERROR(cudaGetDeviceCount(&devCount));
+		HANDLE_ERROR(hipGetDeviceCount(&devCount));
 	}
 #endif
 

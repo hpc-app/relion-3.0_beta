@@ -18,8 +18,8 @@
  * author citations must be preserved.
  ***************************************************************************/
 #include <src/autopicker_mpi.h>
-#ifdef CUDA
-#include <src/acc/cuda/cuda_autopicker.h>
+#ifdef HIP
+#include <src/acc/hip/hip_autopicker.h>
 #endif
 
 int main(int argc, char *argv[])
@@ -32,15 +32,15 @@ int main(int argc, char *argv[])
 
 		prm.initialise();
 
-#ifdef CUDA
+#ifdef HIP
 		if (prm.do_gpu)
 		{
 			std::stringstream didSs;
 			didSs << "APr" << prm.getRank();
 			int dev_id = prm.deviceInitialise();
-			prm.cudaPicker = (void*) new AutoPickerCuda((AutoPickerMpi*)&prm, dev_id, didSs.str().c_str() );
+			prm.hipPicker = (void*) new AutoPickerHip((AutoPickerMpi*)&prm, dev_id, didSs.str().c_str() );
 
-			((AutoPickerCuda*)prm.cudaPicker)->run();
+			((AutoPickerHip*)prm.hipPicker)->run();
 		}
 		else
 #endif
