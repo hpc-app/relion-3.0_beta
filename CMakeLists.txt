@@ -19,6 +19,10 @@ add_definitions(-DINSTALL_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib/)
 add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR}/src/)
 
 include_directories(/work/home/liuqy/software/llvm_openmp/include)
+#link_directories(/work/home/liuqy/software/llvm_openmp/lib)
+#FIND_LIBRARY(llvm_openmp__LIB llvm_openmp /work/home/liuqy/software/llvm_openmp/lib NO_DEFAULT_PATH)
+#link_libraries(${llvm_openmp_LIB})
+link_libraries(/work/home/liuqy/software/llvm_openmp/lib/libomp.so)
 
 # message(STATUS "INSTALL_LIBRARY_DIR set to ${CMAKE_INSTALL_PREFIX}/lib/")
 # message(STATUS "SOURCE_DIR set to ${CMAKE_SOURCE_DIR}/src/")
