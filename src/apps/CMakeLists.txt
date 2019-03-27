@@ -1,4 +1,6 @@
 include_directories("${CMAKE_SOURCE_DIR}")
+include_directories(/opt/rocm/rocfft/include)
+link_libraries(/opt/rocm/rocfft/lib/librocfft.so)
 
 message("Running apps/CMakeLists.txt...")
 
