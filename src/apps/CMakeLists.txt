@@ -120,6 +120,8 @@ if (HIP_FOUND)
 
     find_package(rocprim REQUIRED CONFIG PATHS "/opt/rocm/rocprim")
     find_package(hipcub REQUIRED CONFIG PATHS "/opt/rocm/hipcub")
+    set(_IMPORT_PREFIX "/opt/rocm/hip")
+    add_library(hip::device INTERFACE IMPORTED)
 
     file(GLOB REL_HIP_SRC "${CMAKE_SOURCE_DIR}/src/acc/hip/*.hip.cpp" "${CMAKE_SOURCE_DIR}/src/acc/hip/hip_kernels/*.hip.cpp" )
     hip_add_library(relion_gpu_util ${REL_HIP_SRC})
