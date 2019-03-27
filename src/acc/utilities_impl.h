@@ -255,7 +255,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     // Create noise image with the correct spectral profile
     if(is3D)
     {
-    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
+    	/*hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
                                     ~accMLO->transformer1.fouriers,
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
@@ -268,7 +268,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     	                                    ~accMLO->transformer1.fouriers,
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
-    	                                    ~NoiseSpectra);
+    	                                    ~NoiseSpectra);*/
     }
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
@@ -377,12 +377,12 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 			//AccPtr<hipfftComplex> d_Fimg = img_in.make<hipfftComplex>(xSize * ySize * zSize);
 			d_Fimg.allAlloc();
 			accMLO->transformer1.fouriers.streamSync();
-			windowFourierTransform2(
+			/*windowFourierTransform2(
 					accMLO->transformer1.fouriers,
 					d_Fimg,
 					accMLO->transformer1.xFSize,accMLO->transformer1.yFSize, accMLO->transformer1.zFSize, //Input dimensions
 					xSize, ySize, zSize  //Output dimensions
-					);
+					);*/
 			accMLO->transformer1.fouriers.streamSync();
 
 			d_Fimg.cpToHost();
