@@ -253,10 +253,14 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
     // Create noise image with the correct spectral profile
+	//change hipcomplex to float2
+	AccPtr< ACCCOMPLEX >  tmp_transformer1_fouriers_float2;
+	memcpy(&tmp_transformer1_fouriers_float2,&(accMLO->transformer1.fouriers),sizeof(ACCCOMPLEX));
     if(is3D)
     {
-    	/*hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
-                                    ~accMLO->transformer1.fouriers,
+    	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
+                                    //~accMLO->transformer1.fouriers,
+									~tmp_transformer1_fouriers_float2,
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
 									accMLO->transformer1.yFSize,
@@ -265,10 +269,11 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     else
     {
     	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
-    	                                    ~accMLO->transformer1.fouriers,
+    	                                    //~accMLO->transformer1.fouriers,
+											~tmp_transformer1_fouriers_float2,
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
-    	                                    ~NoiseSpectra);*/
+    	                                    ~NoiseSpectra);
     }
     LAUNCH_PRIVATE_ERROR(hipGetLastError(),accMLO->errorStatus);
 
@@ -377,12 +382,16 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 			//AccPtr<hipfftComplex> d_Fimg = img_in.make<hipfftComplex>(xSize * ySize * zSize);
 			d_Fimg.allAlloc();
 			accMLO->transformer1.fouriers.streamSync();
-			/*windowFourierTransform2(
-					accMLO->transformer1.fouriers,
+			//change hipfftcomplex to float2
+			AccPtr<ACCCOMPLEX> tmp_float2_fouriers;
+			memcpy(&tmp_float2_fouriers,&(accMLO->transformer1.fouriers),sizeof(ACCCOMPLEX));
+			windowFourierTransform2(
+					//accMLO->transformer1.fouriers,
+					tmp_float2_fouriers,
 					d_Fimg,
 					accMLO->transformer1.xFSize,accMLO->transformer1.yFSize, accMLO->transformer1.zFSize, //Input dimensions
 					xSize, ySize, zSize  //Output dimensions
-					);*/
+					);
 			accMLO->transformer1.fouriers.streamSync();
 
 			d_Fimg.cpToHost();
