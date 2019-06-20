@@ -203,7 +203,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 
 	//change hipfftcomplex to float2
 	AccPtr< ACCCOMPLEX > tmp_float2_fouriers;
-	memcpy(&tmp_float2_fouriers,&(hipTransformer2.fouriers),sizeof(ACCCOMPLEX));
+	memcpy(&tmp_float2_fouriers,&(hipTransformer2.fouriers),sizeof(hipTransformer2.fouriers));
 	windowFourierTransform2(
 			d_Fcov,
 			//static_cast<AccPtr<ACCCOMPLEX>>(hipTransformer2.fouriers),
@@ -212,6 +212,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 			x, y, 1,
 			workSize/2+1, workSize, 1);
 	CTOC(timer,"PRE-window_0");
+	memcpy(&(hipTransformer2.fouriers),&tmp_float2_fouriers,sizeof(tmp_float2_fouriers));
 
 	CTIC(timer,"PRE-Transform_0");
 	hipTransformer2.backward();
@@ -257,7 +258,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 	CTIC(timer,"PRE-window_1");
 	
 	//copy fouriers to tmp_float2_fouriers
-	memcpy(&tmp_float2_fouriers,&(hipTransformer2.fouriers),sizeof(ACCCOMPLEX));
+	memcpy(&tmp_float2_fouriers,&(hipTransformer2.fouriers),sizeof(hipTransformer2.fouriers));
 	windowFourierTransform2(
 			d_Fcov,
 			//hipTransformer2.fouriers,
@@ -265,6 +266,7 @@ void AutoPickerHip::calculateStddevAndMeanUnderMask(AccPtr< ACCCOMPLEX > &d_Fmic
 			x, y, 1,
 			workSize/2+1, workSize, 1);
 	CTOC(timer,"PRE-window_1");
+	memcpy(&(hipTransformer2.fouriers),&tmp_float2_fouriers,sizeof(tmp_float2_fouriers));
 
 
 	CTIC(timer,"PRE-Transform_1");
@@ -544,10 +546,12 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 
 		//change float2 to hipfftcomplex
 		AccPtr< hipFloatComplex > tmp_complex_cponacc;
-		memcpy(&tmp_complex_cponacc,&Ftmp,sizeof(hipFloatComplex));
+		memcpy(&tmp_complex_cponacc,&Ftmp,sizeof(Ftmp));
 		//micTransformer.fouriers.cpOnAcc(Ftmp);
 		micTransformer.fouriers.cpOnAcc(tmp_complex_cponacc);
+		memcpy(&Ftmp,&tmp_complex_cponacc,sizeof(tmp_complex_cponacc));
 		CTOC(timer,"F_cp");
+
 
 		// Also calculate the FFT of the squared micrograph
 		CTIC(timer,"SquareImic");
@@ -596,8 +600,9 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 
 			//change hipfftcomplex to float2
 			AccPtr< ACCCOMPLEX > tmp_float2_fouriers;
-			memcpy(&tmp_float2_fouriers,&(micTransformer.fouriers),sizeof(ACCCOMPLEX));
+			memcpy(&tmp_float2_fouriers,&(micTransformer.fouriers),sizeof(micTransformer.fouriers));
 			calculateStddevAndMeanUnderMask(Ftmp, /*micTransformer.fouriers,*/ tmp_float2_fouriers, d_Fmsk2, basePckr->nr_pixels_avg_mask, d_Mstddev2, d_Mavg, micTransformer.xFSize, micTransformer.yFSize, basePckr->micrograph_size, basePckr->workSize);
+			memcpy(&(micTransformer.fouriers),&tmp_float2_fouriers,sizeof(tmp_float2_fouriers));
 
 			d_Mstddev2.hostAlloc();
 			d_Mstddev2.cpToHost();
@@ -628,9 +633,9 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 		
 		//copy micTransformer.fouriers to tmp_float2_fouriers
 		AccPtr< ACCCOMPLEX > tmp_float2_fouriers;
-		memcpy(&tmp_float2_fouriers,&(micTransformer.fouriers),sizeof(ACCCOMPLEX));
+		memcpy(&tmp_float2_fouriers,&(micTransformer.fouriers),sizeof(micTransformer.fouriers));
 		calculateStddevAndMeanUnderMask(Ftmp, /*micTransformer.fouriers,*/ tmp_float2_fouriers, d_Fmsk, basePckr->nr_pixels_circular_invmask, d_Mstddev, d_Mmean, micTransformer.xFSize, micTransformer.yFSize, basePckr->micrograph_size, basePckr->workSize);
-
+		memcpy(&(micTransformer.fouriers),&tmp_float2_fouriers,sizeof(tmp_float2_fouriers));
 
 		//TODO remove this
 		d_Mstddev.hostAlloc();
@@ -803,7 +808,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 	dim3 blocks((int)ceilf((float)FauxStride/(float)BLOCK_SIZE),1);
 	//change hipfftcomplex to float2
 	AccPtr<ACCCOMPLEX> tmp_hipTransformer1_fouriers_float2;
-	memcpy(&tmp_hipTransformer1_fouriers_float2,&(hipTransformer1.fouriers),sizeof(ACCCOMPLEX));
+	memcpy(&tmp_hipTransformer1_fouriers_float2,&(hipTransformer1.fouriers),sizeof(hipTransformer1.fouriers));
 	if(basePckr->do_ctf)
 	{
 		hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,0,0,
@@ -826,6 +831,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 												);
 	}
 	LAUNCH_HANDLE_ERROR(hipGetLastError());
+	memcpy(&(hipTransformer1.fouriers),&tmp_hipTransformer1_fouriers_float2,sizeof(tmp_hipTransformer1_fouriers_float2));
 	CTOC(timer,"SingleProjection");
 #ifdef TIMING
 	basePckr->timer.toc(basePckr->TIMING_B4);
@@ -845,8 +851,8 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 			//change hipfftcomplex to float2
 			AccPtr< ACCCOMPLEX > tmp_hipTransformer1_float2;
 			AccPtr< ACCCOMPLEX > tmp_micTransformer_float2;
-			memcpy(&tmp_hipTransformer1_float2,&(hipTransformer1.fouriers),sizeof(ACCCOMPLEX));
-			memcpy(&tmp_micTransformer_float2,&(micTransformer.fouriers),sizeof(ACCCOMPLEX));
+			memcpy(&tmp_hipTransformer1_float2,&(hipTransformer1.fouriers),sizeof(hipTransformer1.fouriers));
+			memcpy(&tmp_micTransformer_float2,&(micTransformer.fouriers),sizeof(micTransformer.fouriers));
 			windowFourierTransform2(//hipTransformer1.fouriers,
 									//micTransformer.fouriers,
 									tmp_hipTransformer1_float2,
@@ -854,6 +860,8 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 									basePckr->workSize/2+1,        basePckr->workSize,        1, //Input dimensions
 									basePckr->micrograph_size/2+1, basePckr->micrograph_size, 1  //Output dimensions
 									);
+			memcpy(&(hipTransformer1.fouriers),&tmp_hipTransformer1_float2,sizeof(tmp_hipTransformer1_float2));
+			memcpy(&(micTransformer.fouriers),&tmp_micTransformer_float2,sizeof(tmp_micTransformer_float2));
 			CTOC(timer,"windowFourierTransform_FP");
 
 			CTIC(timer,"inverseFourierTransform_FP");
@@ -918,7 +926,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 				CTIC(timer,"Projection");
 				dim3 blocks((int)ceilf((float)FauxStride/(float)BLOCK_SIZE),hipTransformer1.batchSize[psiIter]);
 				//change hipcomplex to float2
-				memcpy(&tmp_hipTransformer1_fouriers_float2,&(hipTransformer1.fouriers),sizeof(ACCCOMPLEX));
+				memcpy(&tmp_hipTransformer1_fouriers_float2,&(hipTransformer1.fouriers),sizeof(hipTransformer1.fouriers));
 				if(basePckr->do_ctf)
 				{
 					hipLaunchKernelGGL(hip_kernel_rotateAndCtf,blocks,BLOCK_SIZE,0,0,
@@ -941,6 +949,7 @@ void AutoPickerHip::autoPickOneMicrograph(FileName &fn_mic, long int imic)
 															);
 				}
 				LAUNCH_HANDLE_ERROR(hipGetLastError());
+				memcpy(&(hipTransformer1.fouriers),&tmp_hipTransformer1_fouriers_float2,sizeof(tmp_hipTransformer1_fouriers_float2));
 				CTOC(timer,"Projection");
 
 				// Now multiply template and micrograph to calculate the cross-correlation

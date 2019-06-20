@@ -129,12 +129,12 @@ void MlOptimiserMpi::initialise()
 			for(int i=0; i<devCount; i++ )
 			{
 				HANDLE_ERROR(hipGetDeviceProperties(&deviceProp, i));
-				if(deviceProp.major>HIP_CC_MAJOR)
-					compatibleDevices+=1;
-				else if(deviceProp.major==HIP_CC_MAJOR && deviceProp.minor>=HIP_CC_MINOR)
+				//if(deviceProp.major>HIP_CC_MAJOR)
+				//	compatibleDevices+=1;
+				//else if(deviceProp.major==HIP_CC_MAJOR && deviceProp.minor>=HIP_CC_MINOR)
 					compatibleDevices+=1;
 				//else
-				//std::cout << "Rank " << node->rank  << " found a " << deviceProp.name << " GPU with compute-capability " << deviceProp.major << "." << deviceProp.minor << std::endl;
+				std::cout << "Rank " << node->rank  << " found a " << deviceProp.name << " GPU with compute-capability " << deviceProp.major << "." << deviceProp.minor << std::endl;
 			}
 			if(compatibleDevices==0)
 				REPORT_ERROR("You have no GPUs compatible with RELION (HIP-capable and compute-capability >= 3.5");
@@ -1438,7 +1438,6 @@ void MlOptimiserMpi::expectation()
 			}
 
 //		TODO: define MPI_COMM_SLAVES!!!!	MPI_Barrier(node->MPI_COMM_SLAVES);
-
 #ifdef HIP
 			if (do_gpu)
 			{
@@ -1515,6 +1514,7 @@ void MlOptimiserMpi::expectation()
 #endif
 			}
 #endif // HIP
+
 #ifdef ALTCPU
 			if (do_cpu)
 			{

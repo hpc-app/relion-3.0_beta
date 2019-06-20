@@ -607,7 +607,6 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 		}
 
 		// ------------------------------------------------------------------------------------------
-
 		CTIC(hipMLO->timer,"normalizeAndTransform");
 		AccUtilities::normalizeAndTransformImage<MlClass>(	 d_img,		// input
 															 Fimg,		// output
@@ -664,6 +663,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 			for (int i = 0; i<(spectrumAndXi2.getSize()-1); i ++)
 				op.power_imgs.at(ipart).data[i] = spectrumAndXi2[i];
 			op.highres_Xi2_imgs.at(ipart) = spectrumAndXi2[spectrumAndXi2.getSize()-1];
+
 		}
 		else
 		{
@@ -874,6 +874,7 @@ void getFourierTransformsAndCtfs(long int my_ori_particle,
 #endif
 	GTOC(accMLO->timer,"getFourierTransformsAndCtfs");
 	GATHERGPUTIMINGS(accMLO->timer);
+	
 }
 
 // ----------------------------------------------------------------------------

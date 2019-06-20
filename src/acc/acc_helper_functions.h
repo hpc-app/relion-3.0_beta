@@ -285,7 +285,6 @@ void windowFourierTransform2(
 		size_t pos = 0,
 		hipStream_t stream = 0);
 
-
 void selfApplyBeamTilt2(MultidimArray<Complex > &Fimg, RFLOAT beamtilt_x, RFLOAT beamtilt_y,
 		RFLOAT wavelength, RFLOAT Cs, RFLOAT angpix, int ori_size);
 

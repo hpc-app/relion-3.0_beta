@@ -18,8 +18,11 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 add_definitions(-DINSTALL_LIBRARY_DIR=${CMAKE_INSTALL_PREFIX}/lib/)
 add_definitions(-DSOURCE_DIR=${CMAKE_SOURCE_DIR}/src/)
 
-include_directories(/work/home/liuqy/software/llvm_openmp/include)
-link_libraries(/work/home/liuqy/software/llvm_openmp/lib/libomp.so)
+include_directories(/work/home/gaoya/install_openmp/include)
+include_directories(/opt/rocm/rocrand/include)
+include_directories(/opt/rocm/hiprand/include)
+#include_directories(/work/home/liuqy/gaoya/relion-3.0_beta/src/acc/hip/rocPRIM/rocprim/include)
+link_libraries(/work/home/gaoya/install_openmp/lib/libomp.so)
 
 # message(STATUS "INSTALL_LIBRARY_DIR set to ${CMAKE_INSTALL_PREFIX}/lib/")
 # message(STATUS "SOURCE_DIR set to ${CMAKE_SOURCE_DIR}/src/")

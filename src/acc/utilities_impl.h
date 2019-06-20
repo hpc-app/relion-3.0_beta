@@ -254,13 +254,13 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
 
     // Create noise image with the correct spectral profile
 	//change hipcomplex to float2
-	AccPtr< ACCCOMPLEX >  tmp_transformer1_fouriers_float2;
-	memcpy(&tmp_transformer1_fouriers_float2,&(accMLO->transformer1.fouriers),sizeof(ACCCOMPLEX));
+	AccPtr< ACCCOMPLEX >  *tmp_transformer1_fouriers_float2 = (AccPtr< ACCCOMPLEX >  *)(&(accMLO->transformer1.fouriers));
+	//memcpy(&tmp_transformer1_fouriers_float2,&(accMLO->transformer1.fouriers),sizeof(accMLO->transformer1.fouriers));
     if(is3D)
     {
     	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation3D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
                                     //~accMLO->transformer1.fouriers,
-									~tmp_transformer1_fouriers_float2,
+									~(*tmp_transformer1_fouriers_float2),
                                     ~RandomStates,
 									accMLO->transformer1.xFSize,
 									accMLO->transformer1.yFSize,
@@ -270,7 +270,7 @@ void makeNoiseImage(XFLOAT sigmaFudgeFactor,
     {
     	hipLaunchKernelGGL(hip_kernel_RNDnormalDitributionComplexWithPowerModulation2D,RND_BLOCK_NUM,RND_BLOCK_SIZE, 0, 0,
     	                                    //~accMLO->transformer1.fouriers,
-											~tmp_transformer1_fouriers_float2,
+											~(*tmp_transformer1_fouriers_float2),
     	                                    ~RandomStates,
     										accMLO->transformer1.xFSize,
     	                                    ~NoiseSpectra);
@@ -383,11 +383,11 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 			d_Fimg.allAlloc();
 			accMLO->transformer1.fouriers.streamSync();
 			//change hipfftcomplex to float2
-			AccPtr<ACCCOMPLEX> tmp_float2_fouriers;
-			memcpy(&tmp_float2_fouriers,&(accMLO->transformer1.fouriers),sizeof(ACCCOMPLEX));
+			AccPtr<ACCCOMPLEX> *tmp_float2_fouriers = (AccPtr<ACCCOMPLEX> *)(&(accMLO->transformer1.fouriers));
+			//memcpy(&tmp_float2_fouriers,&(accMLO->transformer1.fouriers),sizeof(accMLO->transformer1.fouriers));
 			windowFourierTransform2(
 					//accMLO->transformer1.fouriers,
-					tmp_float2_fouriers,
+					*tmp_float2_fouriers,
 					d_Fimg,
 					accMLO->transformer1.xFSize,accMLO->transformer1.yFSize, accMLO->transformer1.zFSize, //Input dimensions
 					xSize, ySize, zSize  //Output dimensions
@@ -402,7 +402,6 @@ void normalizeAndTransformImage(	AccPtr<XFLOAT> &img_in,
 				img_out.data[i].real = (RFLOAT) d_Fimg[i].x;
 				img_out.data[i].imag = (RFLOAT) d_Fimg[i].y;
 			}
-
 }
 
 static void softMaskBackgroundValue(
